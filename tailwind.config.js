@@ -3,6 +3,10 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      screens: {
+        sm: '768px', 
+        md: '1024px', 
+      },
       colors: {
         primary: {
           light: '#b2dbda',

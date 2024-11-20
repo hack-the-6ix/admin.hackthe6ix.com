@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import DashboardLayout from './components/layouts/Dashboard';
 
