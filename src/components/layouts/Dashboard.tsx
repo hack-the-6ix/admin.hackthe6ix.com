@@ -33,7 +33,7 @@ export default function DashboardLayout() {
   return (
     <div className="flex flex-col h-screen">
       <nav className="sticky top-0 flex justify-between items-center bg-slate-50 dark:bg-slate-950 text-neutral-light dark:text-white p-4 shadow-md w-full">
-        <img src={logo} alt="Logo" className="h-8 w-8" />
+        <img src={logo} alt="Logo" className="ml-6 h-8 w-8" />
         <div className="justify-end">
         {pages.map(({ label, to }, idx) => (
           <NavLink

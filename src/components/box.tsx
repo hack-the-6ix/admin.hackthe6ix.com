@@ -12,7 +12,7 @@ const Box: FC<BoxProps> = ({ title, children, className = '' }) => {
     <div
       className={`bg-primary dark:bg-slate-700 text-white p-4 text-center rounded-lg ${className}`}
     >
-      {title && <h2 className="text-lg font-bold mb-2">{title}</h2>}
+      {title && <h2 className="text-2xl font-bold mb-2">{title}</h2>}
       {children}
     </div>
   );
