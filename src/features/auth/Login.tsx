@@ -14,13 +14,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   });
 
-  // TODO: IDK WHY THIS NO WORKS PROPERLY
-  if (import.meta.env.DEV) {
-    const url = new URL(result.message.url);
-    url.searchParams.set('redirect_uri', callbackURL.toString());
-    result.message.url = url.toString();
-  }
-
   toLoaderResult(result);
   return redirectDocument(result.message.url);
 }
