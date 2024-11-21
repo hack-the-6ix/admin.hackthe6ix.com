@@ -4,5 +4,5 @@ import { defineConfig } from 'vite';
 import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
-  plugins: [react(), tsconfigPaths(), svgr()],
+  plugins: [react(), tsconfigPaths()],
 });
