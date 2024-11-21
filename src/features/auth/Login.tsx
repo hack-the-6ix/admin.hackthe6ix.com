@@ -18,7 +18,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (import.meta.env.DEV) {
     const url = new URL(result.message.url);
     url.searchParams.set('redirect_uri', callbackURL.toString());
-    url.searchParams.set('state', JSON.stringify({ callbackURL }));
     result.message.url = url.toString();
   }
 

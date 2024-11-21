@@ -33,6 +33,7 @@ export async function fetchHt6Api<
     body: payload ? JSON.stringify(payload) : null,
     headers: {
       'X-Access-Token': window.localStorage.getItem('HT6_token') ?? '',
+      'Content-Type': 'application/json',
     },
     method,
   });
