@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { LoaderFunction, LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export interface Ht6ApiResponse<Data = string> {
@@ -10,6 +11,33 @@ export interface FetchHt6ApiOptions<Payload extends Record<string, unknown>> {
   payload?: Payload;
   method?: string;
 }
+
+export interface StatisticsResponse {
+  total: number;
+  hacker: {
+    status: {
+      applied: number;
+      accepted: number;
+      rejected: number;
+      waitlisted: number;
+      confirmed: number;
+    };
+    submittedApplicationStats: {
+      review: {
+        reviewed: number;
+        notReviewed: number;
+        applicationScores: {
+          creativeResponse: number;
+          whyHT6: number;
+          project: number;
+          portfolio: number;
+        };
+        reviewers: Record<string, { total: number; name: string }>;
+      };
+    };
+  };
+}
+
 
 export async function fetchHt6Api<
   Result,
@@ -59,3 +87,11 @@ export function loaderAuthCheck(next: LoaderFunction = () => null) {
     return next(args);
   };
 }
+
+export const getStatistics = async (update: boolean) => {
+  return fetchHt6Api<StatisticsResponse, never>('/api/action/getStatistics', {
+    method: 'GET',
+    searchParams: new URLSearchParams({ update: update ? 'true' : 'false' }),
+  });
+};
+

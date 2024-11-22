@@ -1,19 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { GiQueenCrown } from 'react-icons/gi';
 
-export default function LeaderBoard() {
-  const reviewers = [
-    { name: 'Aurora Shi', total: 1200 },
-    { name: 'Winston Yu', total: 1100 },
-    { name: 'Martin He', total: 950 },
-    { name: 'Emily Chen', total: 890 },
-    { name: 'Daniel Zhang', total: 850 },
-    { name: 'Emily Chen', total: 890 },
-    { name: 'Daniel Zhang', total: 850 },
-    { name: 'Emily Chen', total: 890 },
-    { name: 'Daniel Zhang', total: 850 },
-  ];
-
+export default function LeaderBoard({ reviewers }: { reviewers: { name: string; total: number }[] }) {
   return (
     <div className="p-6 m-4 bg-primary dark:bg-slate-700 text-center rounded-2xl">
       <h1 className="pt-2 text-2xl text-white font-bold mb-6">
@@ -23,44 +11,38 @@ export default function LeaderBoard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 m-4">
         <div className="bg-primary-light dark:bg-slate-800 rounded-2xl pr-5 pl-5">
           <div className="flex justify-center gap-4 items-end h-full">
-            <div className="flex flex-col items-center bg-amber-300 dark:bg-primary-dark p-4 shadow-lg rounded-t-3xl h-1/2 basis-1/3">
-              <GiQueenCrown size = '50px' className="mb-2 text-amber-50 dark:text-primary-light" />
+            <div className="flex flex-col items-center bg-amber-300 dark:bg-primary-dark p-4 shadow-lg rounded-t-3xl h-3/4 basis-1/3">
+              <GiQueenCrown size="50px" className="mb-2 text-amber-50 dark:text-primary-light" />
 
               <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
-                <span className="text-amber-400 dark:text-primary-dark font-bold">
-                  3
-                </span>
+                <span className="text-amber-400 dark:text-primary-dark font-bold">3</span>
               </div>
-              <p className="font-bold m-2">{reviewers[2].name}</p>
+              <p className="font-bold m-2">{reviewers[2]?.name}</p>
               <div className="pr-4 pl-4 rounded-md mb-10 bg-amber-100 dark:bg-primary">
-                {reviewers[2].total}
+                {reviewers[2]?.total}
               </div>
             </div>
 
             <div className="flex flex-col items-center bg-amber-400 dark:bg-primary-dark p-4 shadow-lg h-5/6 rounded-t-3xl basis-1/3">
-              <GiQueenCrown size = '50px' className="mb-2 text-amber-100 dark:text-primary-light" />
+              <GiQueenCrown size="50px" className="mb-2 text-amber-100 dark:text-primary-light" />
               <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
-                <span className="text-amber-500 dark:text-primary-dark font-bold">
-                  1
-                </span>
+                <span className="text-amber-500 dark:text-primary-dark font-bold">1</span>
               </div>
-              <p className="font-bold m-2">{reviewers[0].name}</p>
+              <p className="font-bold m-2">{reviewers[0]?.name}</p>
               <div className="pr-4 pl-4 rounded-md mb-10 bg-amber-200 dark:bg-primary">
-                {reviewers[0].total}
+                {reviewers[0]?.total}
               </div>
             </div>
 
-            <div className="flex flex-col items-center bg-amber-500 dark:bg-primary-dark p-4 shadow-lg h-3/5 rounded-t-3xl basis-1/3">
-              <GiQueenCrown size = '50px' className="mb-2 text-amber-200 dark:text-primary-light" />
+            <div className="flex flex-col items-center bg-amber-500 dark:bg-primary-dark p-4 shadow-lg h-4/5 rounded-t-3xl basis-1/3">
+              <GiQueenCrown size="50px" className="mb-2 text-amber-200 dark:text-primary-light" />
 
               <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
-                <span className="text-amber-600 dark:text-primary-dark font-bold">
-                  2
-                </span>
+                <span className="text-amber-600 dark:text-primary-dark font-bold">2</span>
               </div>
-              <p className="font-bold m-2">{reviewers[1].name}</p>
+              <p className="font-bold m-2">{reviewers[1]?.name}</p>
               <div className="pr-4 pl-4 rounded-md mb-10 bg-amber-300 dark:bg-primary">
-                {reviewers[1].total}
+                {reviewers[1]?.total}
               </div>
             </div>
           </div>

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { fetchHt6Api, toLoaderResult } from '@/utils/ht6-api';
 import { LoaderFunctionArgs, redirectDocument } from 'react-router-dom';
 

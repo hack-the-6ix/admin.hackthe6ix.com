@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { NavLink, Outlet } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import logo from '../../assets/logo.svg';
 
 const pages = [
