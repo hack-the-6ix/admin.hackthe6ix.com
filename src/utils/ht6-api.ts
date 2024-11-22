@@ -14,6 +14,13 @@ export interface FetchHt6ApiOptions<Payload extends Record<string, unknown>> {
 
 export interface StatisticsResponse {
   total: number;
+  timestamp: number;
+  groups:{
+    hacker:number;
+    admin:number;
+    organizer:number;
+    volunteer:number;
+  };
   hacker: {
     status: {
       applied: number;
@@ -23,6 +30,13 @@ export interface StatisticsResponse {
       confirmed: number;
     };
     submittedApplicationStats: {
+      gender: {
+        male: number;
+        female: number;
+        other: number;
+        nonBinary: number;
+        chooseNotToSay: number;
+      };
       review: {
         reviewed: number;
         notReviewed: number;

@@ -3,6 +3,7 @@ import Box from '../../components/box';
 import LeaderBoard from './leaderboard';
 import { getStatistics, StatisticsResponse } from '../../utils/ht6-api';
 import { useState, useEffect } from 'react';
+import PieChart from './piechart';
 
 export function Component() {
   const [data, setData] = useState<StatisticsResponse | null>(null);
@@ -10,7 +11,6 @@ export function Component() {
   const fetchData = async () => {
     try {
       const response = await getStatistics(true);
-      console.log('API response:', response);
       setData(response.message);
     } catch (error) {
       console.error('Failed to fetch statistics:', error);
@@ -27,16 +27,51 @@ export function Component() {
         data.hacker.submittedApplicationStats.review.reviewers,
       ).map(([, value]) => ({ name: value.name, total: value.total }))
     : [];
+  reviewers.sort((a, b) => b.total - a.total);
 
   const hackers =
     data?.hacker.status ?
       Object.entries(data.hacker.status)
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        .filter(([, value]) => value != null) // Exclude entries where value is null or undefined
-        .map(([key, value]) => `${key.charAt(0).toUpperCase() + String(key).slice(1)}: ${value.toString()}`) // Format the key-value pairs
+        .filter(([, value]) => value != null)
+        .map(
+          ([key, value]) =>
+            `${key.charAt(0).toUpperCase() + String(key).slice(1)}: ${value.toString()}`,
+        )
     : [];
 
-  reviewers.sort((a, b) => b.total - a.total);
+  const system =
+    data?.groups ?
+      Object.entries(data.groups)
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        .filter(([, value]) => value != null)
+        .map(
+          ([key, value]) =>
+            `${key.charAt(0).toUpperCase() + String(key).slice(1)}: ${value.toString()}`,
+        )
+    : [];
+  system.unshift('Last updated: ' + new Date(data?.timestamp ?? 0).toString());
+
+  const genderChart =
+    data?.hacker.submittedApplicationStats.gender ?
+      Object.entries(data.hacker.submittedApplicationStats.gender).map(
+        ([key, value]) => ({
+          name: key,
+          total: value,
+        }),
+      )
+    : [];
+
+  const totalGenderCount = genderChart.reduce(
+    (sum, item) => sum + item.total,
+    0,
+  );
+  const genderDisplay = genderChart.map((item) => {
+    const percentage = ((item.total / totalGenderCount) * 100).toFixed(1); // Calculate percentage
+    return `${item.name.charAt(0).toUpperCase() + item.name.slice(1)}: ${String(
+      item.total,
+    )} (${String(percentage)}%)`;
+  });
 
   return (
     <div className="p-4 m-3">
@@ -58,9 +93,12 @@ export function Component() {
       <LeaderBoard reviewers={reviewers} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
-        <Box title="System">box4</Box>
+        <Box title="System" items={system}></Box>
         <Box title="Hackers" items={hackers}></Box>
-        <Box title="Gender">box1</Box>
+        <Box title="Gender" items={genderDisplay}>
+          <PieChart data={genderChart} />
+        </Box>
+
         <Box title="Reviews">box2</Box>
         <Box title="Questions">box3</Box>
         <Box title="Grades">box3</Box>
