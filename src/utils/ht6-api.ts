@@ -12,46 +12,27 @@ export interface FetchHt6ApiOptions<Payload extends Record<string, unknown>> {
   method?: string;
 }
 
+type GroupCounts = Record<string, number>;
+type Reviewers = Record<string, { total: number; name: string }>;
+
 export interface StatisticsResponse {
   total: number;
   timestamp: number;
-  groups:{
-    hacker:number;
-    admin:number;
-    organizer:number;
-    volunteer:number;
-  };
+  groups: GroupCounts;
   hacker: {
-    status: {
-      applied: number;
-      accepted: number;
-      rejected: number;
-      waitlisted: number;
-      confirmed: number;
-    };
+    status: GroupCounts;
     submittedApplicationStats: {
-      gender: {
-        male: number;
-        female: number;
-        other: number;
-        nonBinary: number;
-        chooseNotToSay: number;
-      };
+      gender: GroupCounts;
       review: {
         reviewed: number;
         notReviewed: number;
-        applicationScores: {
-          creativeResponse: number;
-          whyHT6: number;
-          project: number;
-          portfolio: number;
-        };
-        reviewers: Record<string, { total: number; name: string }>;
+        applicationScores: GroupCounts;
+        reviewers: Reviewers;
       };
+      questionBreakdown: GroupCounts;
     };
   };
 }
-
 
 export async function fetchHt6Api<
   Result,
