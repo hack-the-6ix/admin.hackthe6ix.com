@@ -20,9 +20,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": [
-    "vite.config.ts",
-    "react-router.config.ts",
-    ".react-router/types/**/*"
-  ]
+  "include": ["vite.config.ts", "tailwind.config.ts", "react-router.config.ts"]
 }

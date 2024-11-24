@@ -9,8 +9,7 @@ lerna-debug.log*
 
 node_modules
 .react-router
-dist
-dist-ssr
+build
 *.local
 
 # Editor directories and files

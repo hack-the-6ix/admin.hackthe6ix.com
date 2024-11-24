@@ -2,7 +2,7 @@ import type { Route } from './+types/Callback';
 import { fetchHt6Api, toLoaderResult } from '@/utils/ht6-api';
 import { redirect } from 'react-router';
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function clientLoader({ request }: Route.LoaderArgs) {
   const { searchParams } = new URL(request.url);
   const state = searchParams.get('state');
   const code = searchParams.get('code');
