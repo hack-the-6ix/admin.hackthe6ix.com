@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { NavLink, Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import logo from '../../assets/logo.svg';
+import logo from '../../../public/logo.svg';
 
 const pages = [
   { label: 'Home', to: '/' },
@@ -17,13 +17,8 @@ export default function DashboardLayout() {
 
   useEffect(() => {
     const html = document.documentElement;
-    if (isDarkMode) {
-      html.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      html.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+    html.classList.toggle('dark', isDarkMode);
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {

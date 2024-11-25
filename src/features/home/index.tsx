@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import Box from '../../components/box';
 import LeaderBoard from './leaderboard';
 import { getStatistics, StatisticsResponse } from '../../utils/ht6-api';
@@ -69,13 +67,13 @@ export function Component() {
 
   const hackers =
     data?.hacker.status ?
-      formatEntries(data.hacker.status, data.groups?.hacker ?? 1)
+      formatEntries(data.hacker.status, data.groups.hacker)
     : [];
 
   const system =
     data?.groups ?
       [
-        'Last updated: ' + new Date(data?.timestamp ?? 0).toString(),
+        'Last updated: ' + new Date(data.timestamp).toString(),
         ...formatEntries(data.groups, data.total),
       ]
     : [];
@@ -100,7 +98,7 @@ export function Component() {
     data?.hacker.submittedApplicationStats.questionBreakdown ?
       formatEntries(
         data.hacker.submittedApplicationStats.questionBreakdown,
-        data.groups?.hacker ?? 1,
+        data.groups.hacker,
       )
     : [];
 

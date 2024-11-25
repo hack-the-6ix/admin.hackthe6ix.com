@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { FC, ReactNode } from 'react';
 
 interface BoxProps {
