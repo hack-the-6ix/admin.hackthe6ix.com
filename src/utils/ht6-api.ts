@@ -29,8 +29,8 @@ export interface StatisticsResponse {
         applicationScores: GroupCounts;
         reviewers: Reviewers;
       };
-      questionBreakdown: GroupCounts;
     };
+    questionBreakdown: GroupCounts;
   };
 }
 

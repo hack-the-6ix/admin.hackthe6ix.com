@@ -95,11 +95,8 @@ export function Component() {
   );
 
   const questionsAnswered =
-    data?.hacker.submittedApplicationStats.questionBreakdown ?
-      formatEntries(
-        data.hacker.submittedApplicationStats.questionBreakdown,
-        data.groups.hacker,
-      )
+    data?.hacker.questionBreakdown ?
+      formatEntries(data.hacker.questionBreakdown, data.groups.hacker)
     : [];
 
   const reviewers =
