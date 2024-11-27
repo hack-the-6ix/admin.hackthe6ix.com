@@ -1,4 +1,4 @@
-import { LoaderFunction, LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { LoaderFunction, LoaderFunctionArgs, redirect } from 'react-router';
 
 export interface Ht6ApiResponse<Data = string> {
   status: number;
