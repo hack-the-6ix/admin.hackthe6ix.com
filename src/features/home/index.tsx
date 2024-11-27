@@ -2,7 +2,7 @@ import Box from '../../components/box';
 import LeaderBoard from './leaderboard';
 import { getStatistics, StatisticsResponse } from '../../utils/ht6-api';
 import { useState, useEffect } from 'react';
-import PieChart from './piechart';
+import PieChart from '../../components/piechart';
 
 const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
