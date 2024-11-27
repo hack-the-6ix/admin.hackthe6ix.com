@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
-export function Component() {
+export default function AdminSettings() {
   return <div>Admin Settings</div>;
 }

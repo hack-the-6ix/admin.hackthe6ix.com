@@ -20,7 +20,7 @@ const formatEntries = (
     formatKeyValue(key, value, total),
   );
 
-export function Component() {
+export default function Home() {
   const [data, setData] = useState<StatisticsResponse | null>(null);
 
   const fetchData = async () => {

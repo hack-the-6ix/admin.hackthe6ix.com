@@ -7,7 +7,7 @@ import tseslint from 'typescript-eslint';
 import js from '@eslint/js';
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  { ignores: ['dist', '.react-router'] },
   {
     extends: [
       js.configs.recommended,
@@ -33,7 +33,7 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       ...react.configs.recommended.rules,
       ...react.configs['jsx-runtime'].rules,
-      'react-refresh/only-export-components': ['off'],
+      'react-refresh/only-export-components': 'off',
     },
   },
   eslintPluginPrettierRecommended,

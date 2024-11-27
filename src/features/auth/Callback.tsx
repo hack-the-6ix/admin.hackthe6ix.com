@@ -1,8 +1,8 @@
-/* eslint-disable prettier/prettier */
+import type { Route } from './+types/Callback';
 import { fetchHt6Api, toLoaderResult } from '@/utils/ht6-api';
-import { LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { redirect } from 'react-router';
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function clientLoader({ request }: Route.LoaderArgs) {
   const { searchParams } = new URL(request.url);
   const state = searchParams.get('state');
   const code = searchParams.get('code');
@@ -28,6 +28,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return redirect('/');
 }
 
-export function Component() {
+export default function Callback() {
   return <div />;
 }

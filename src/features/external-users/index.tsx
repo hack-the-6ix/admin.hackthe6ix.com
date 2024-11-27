@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
-export function Component() {
+export default function ExternalUsers() {
   return <div>External Users</div>;
 }

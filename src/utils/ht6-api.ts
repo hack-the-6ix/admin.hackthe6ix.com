@@ -1,5 +1,4 @@
-/* eslint-disable prettier/prettier */
-import { LoaderFunction, LoaderFunctionArgs, redirect } from 'react-router-dom';
+import { LoaderFunction, LoaderFunctionArgs, redirect } from 'react-router';
 
 export interface Ht6ApiResponse<Data = string> {
   status: number;
@@ -89,4 +88,3 @@ export const getStatistics = async (update: boolean) => {
     searchParams: new URLSearchParams({ update: update ? 'true' : 'false' }),
   });
 };
-
