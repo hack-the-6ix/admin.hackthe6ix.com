@@ -1,7 +1,7 @@
 import Box from '../../components/box';
 import LeaderBoard from './leaderboard';
 import { getStatistics, StatisticsResponse } from '../../utils/ht6-api';
-import { useState, useEffect } from 'react';
+import { useLoaderData } from 'react-router';
 import PieChart from '../../components/piechart';
 
 const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
@@ -20,17 +20,13 @@ const formatEntries = (
     formatKeyValue(key, value, total),
   );
 
-export default function Home() {
-  const [data, setData] = useState<StatisticsResponse | null>(null);
+export async function clientLoader() {
+  const response = await getStatistics(true);
+  return response.message;
+}
 
-  const fetchData = async () => {
-    try {
-      const response = await getStatistics(true);
-      setData(response.message);
-    } catch (error) {
-      console.error('Failed to fetch statistics:', error);
-    }
-  };
+export default function Home() {
+  const data = useLoaderData<StatisticsResponse>();
 
   const downloadJSON = () => {
     const jsonData = JSON.stringify(data, null, 2);
@@ -43,13 +39,8 @@ export default function Home() {
     URL.revokeObjectURL(url);
   };
 
-  useEffect(() => {
-    void fetchData();
-  }, []);
-
-  const reviewed = data?.hacker.submittedApplicationStats.review.reviewed ?? 0;
-  const notReviewed =
-    data?.hacker.submittedApplicationStats.review.notReviewed ?? 0;
+  const reviewed = data.hacker.submittedApplicationStats.review.reviewed;
+  const notReviewed = data.hacker.submittedApplicationStats.review.notReviewed;
   const totalReviews = reviewed + notReviewed;
 
   const reviewDisplay = formatEntries(
@@ -57,33 +48,21 @@ export default function Home() {
     totalReviews,
   );
 
-  const questionsDisplay =
-    data?.hacker.submittedApplicationStats.review.applicationScores ?
-      formatEntries(
-        data.hacker.submittedApplicationStats.review.applicationScores,
-        totalReviews,
-      )
-    : [];
+  const questionsDisplay = formatEntries(
+    data.hacker.submittedApplicationStats.review.applicationScores,
+    totalReviews,
+  );
 
-  const hackers =
-    data?.hacker.status ?
-      formatEntries(data.hacker.status, data.groups.hacker)
-    : [];
+  const hackers = formatEntries(data.hacker.status, data.groups.hacker);
 
-  const system =
-    data?.groups ?
-      [
-        'Last updated: ' + new Date(data.timestamp).toString(),
-        ...formatEntries(data.groups, data.total),
-      ]
-    : [];
+  const system = [
+    'Last updated: ' + new Date(data.timestamp).toString(),
+    ...formatEntries(data.groups, data.total),
+  ];
 
-  const genderChart =
-    data?.hacker.submittedApplicationStats.gender ?
-      Object.entries(data.hacker.submittedApplicationStats.gender).map(
-        ([key, value]) => ({ name: capitalize(key), total: value }),
-      )
-    : [];
+  const genderChart = Object.entries(
+    data.hacker.submittedApplicationStats.gender,
+  ).map(([key, value]) => ({ name: capitalize(key), total: value }));
 
   const totalGenderCount = genderChart.reduce(
     (sum, item) => sum + item.total,
@@ -94,17 +73,14 @@ export default function Home() {
     formatKeyValue(item.name, item.total, totalGenderCount),
   );
 
-  const questionsAnswered =
-    data?.hacker.questionBreakdown ?
-      formatEntries(data.hacker.questionBreakdown, data.groups.hacker)
-    : [];
+  const questionsAnswered = formatEntries(
+    data.hacker.questionBreakdown,
+    data.groups.hacker,
+  );
 
-  const reviewers =
-    data?.hacker.submittedApplicationStats.review.reviewers ?
-      Object.entries(
-        data.hacker.submittedApplicationStats.review.reviewers,
-      ).map(([, value]) => ({ name: value.name, total: value.total }))
-    : [];
+  const reviewers = Object.entries(
+    data.hacker.submittedApplicationStats.review.reviewers,
+  ).map(([, value]) => ({ name: value.name, total: value.total }));
   reviewers.sort((a, b) => b.total - a.total);
 
   return (
@@ -115,14 +91,6 @@ export default function Home() {
           All the numbers at a glance
         </p>
       </div>
-      <button
-        onClick={() => {
-          void fetchData();
-        }}
-        className="m-4 p-2 pl-4 pr-4 bg-amber-500 rounded-2xl text-white hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark"
-      >
-        Update Statistics
-      </button>
 
       <button
         onClick={downloadJSON}
