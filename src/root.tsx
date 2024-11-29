@@ -10,6 +10,7 @@ import type { Route } from './+types/root';
 import './index.css';
 import { PropsWithChildren } from 'react';
 import { useNavigate } from 'react-router';
+import PageLoader from './components/page-loader';
 
 export function Layout({ children }: PropsWithChildren) {
   return (
@@ -17,7 +18,7 @@ export function Layout({ children }: PropsWithChildren) {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>My App</title>
+        <title>Admin Dashboard</title>
         <Meta />
         <Links />
       </head>
@@ -92,11 +93,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 }
 
 export function HydrateFallback() {
-  return (
-    <div className="container flex flex-col items-center justify-center h-dvh mx-auto px-4">
-      <p className="text-6xl">Loading owo...</p>
-    </div>
-  );
+  return <PageLoader />;
 }
 
 export default function Root() {

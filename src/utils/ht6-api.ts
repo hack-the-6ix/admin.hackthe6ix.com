@@ -11,6 +11,28 @@ export interface FetchHt6ApiOptions<Payload extends Record<string, unknown>> {
   method?: string;
 }
 
+type GroupCounts = Record<string, number>;
+type Reviewers = Record<string, { total: number; name: string }>;
+
+export interface StatisticsResponse {
+  total: number;
+  timestamp: number;
+  groups: GroupCounts;
+  hacker: {
+    status: GroupCounts;
+    submittedApplicationStats: {
+      gender: GroupCounts;
+      review: {
+        reviewed: number;
+        notReviewed: number;
+        applicationScores: GroupCounts;
+        reviewers: Reviewers;
+      };
+    };
+    questionBreakdown: GroupCounts;
+  };
+}
+
 export async function fetchHt6Api<
   Result,
   Payload extends Record<string, unknown>,
@@ -59,3 +81,10 @@ export function loaderAuthCheck(next: LoaderFunction = () => null) {
     return next(args);
   };
 }
+
+export const getStatistics = async (update: boolean) => {
+  return fetchHt6Api<StatisticsResponse, never>('/api/action/getStatistics', {
+    method: 'GET',
+    searchParams: new URLSearchParams({ update: update ? 'true' : 'false' }),
+  });
+};

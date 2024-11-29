@@ -1,5 +1,6 @@
 {
   "singleQuote": true,
   "trailingComma": "all",
-  "experimentalTernaries": true
+  "experimentalTernaries": true,
+  "endOfLine": "auto"
 }
