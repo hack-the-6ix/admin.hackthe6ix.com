@@ -1,6 +1,7 @@
-import { NavLink, Outlet } from 'react-router';
+import { NavLink, Outlet, useNavigation } from 'react-router';
 import { useState, useEffect } from 'react';
 import logo from '../../assets/Logo.svg';
+import PageLoader from '../page-loader';
 
 const pages = [
   { label: 'Home', to: '/' },
@@ -10,6 +11,9 @@ const pages = [
 ];
 
 export default function DashboardLayout() {
+  const navigation = useNavigation();
+  const isNavigating = !!navigation.location;
+
   const [isDarkMode, setIsDarkMode] = useState(
     () => localStorage.getItem('theme') === 'dark',
   );
@@ -33,9 +37,13 @@ export default function DashboardLayout() {
             <NavLink
               to={to}
               key={idx}
-              className={({ isActive }) =>
+              className={({ isActive, isPending }) =>
                 `px-4 py-2 mx-2 rounded-md text-sm font-medium hover:bg-primary-extralight dark:hover:bg-slate-800 transition ${
-                  isActive ? 'bg-primary-light dark:bg-slate-700' : ''
+                  (
+                    isNavigating ? isPending : isActive
+                  ) ?
+                    'bg-primary-light dark:bg-slate-700'
+                  : ''
                 }`
               }
             >
@@ -60,7 +68,9 @@ export default function DashboardLayout() {
         </div>
       </nav>
       <div className="dark:text-white bg-slate-200 dark:bg-slate-900 flex-grow overflow-y-auto">
-        <Outlet />
+        {isNavigating ?
+          <PageLoader />
+        : <Outlet />}
       </div>
     </div>
   );

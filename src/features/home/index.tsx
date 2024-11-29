@@ -1,7 +1,8 @@
+import type { Info } from './+types';
 import Box from '../../components/box';
 import LeaderBoard from './leaderboard';
-import { getStatistics, StatisticsResponse } from '../../utils/ht6-api';
-import { useLoaderData } from 'react-router';
+import { getStatistics } from '../../utils/ht6-api';
+import { Await, useLoaderData } from 'react-router';
 import PieChart from '../../components/piechart';
 
 const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
@@ -21,12 +22,12 @@ const formatEntries = (
   );
 
 export async function clientLoader() {
-  const response = await getStatistics(true);
-  return response.message;
+  const data = await getStatistics(true);
+  return data.message;
 }
 
 export default function Home() {
-  const data = useLoaderData<StatisticsResponse>();
+  const data = useLoaderData<Info['loaderData']>();
 
   const downloadJSON = () => {
     const jsonData = JSON.stringify(data, null, 2);
