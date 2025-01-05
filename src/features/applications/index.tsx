@@ -5,33 +5,40 @@ import { getUserProfile, User } from '@/utils/ht6-api';
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router';
 import Button from '@/components/button';
 
-const columns = new Map<string, [(user: User) => React.ReactNode, string]>([
-  ['Name', [(user) => user.fullName, 'user.fullName']],
+// function to get data, path for sorting, width
+const columns = new Map<
+  string,
+  [(user: User) => React.ReactNode, string, string]
+>([
+  ['Name', [(user) => user.fullName, 'fullName', 'w-[200px]']],
   [
     'Status',
     [
       (user) => user.status.internalTextStatus,
-      'user.status.internalTextStatus',
+      'status.internalTextStatus',
+      'w-[150px]',
     ],
   ],
-  ['ID', [(user) => user._id, 'user._id']],
-  ['Email', [(user) => user.email, 'user.email']],
+  ['ID', [(user) => user._id, '_id', 'w-[100px]']],
+  ['Email', [(user) => user.email, 'email', 'w-[250px]']],
   [
     'Final Rating',
     [
       (user) => {
         return user.internal.computedFinalApplicationScore ?
             user.internal.computedFinalApplicationScore
-          : -1;
+          : -1; // find the right api path
       },
-      'user.internal.computedFinalApplicationScore',
+      'internal.computedFinalApplicationScore',
+      'w-[150px]',
     ],
   ],
   [
     'Personal Rating',
     [
       (user) => user.internal.computedApplicationScore,
-      'user.internal.computedApplicationScore',
+      'internal.computedApplicationScore',
+      'w-[150px]',
     ],
   ],
 ]);
@@ -117,13 +124,13 @@ export default function Applications() {
   return (
     <div className="p-4 m-3">
       <ApplicationHeader />
-      <table className="rounded-lg min-w-full table-auto border-collapse text-left">
-        <thead className="sticky top-0.5 z-1 bg-slate-50 dark:bg-slate-700 rounded-t-lg ">
+      <table className="min-w-full table-auto border-collapse text-left">
+        <thead className="sticky top-0.5 z-1 bg-slate-50 dark:bg-slate-700 rounded-t-lg">
           <tr>
             {[...columns.entries()].map(([key, value]) => (
               <th
                 key={key}
-                className="px-4 py-2 border-b text-sm font-semibold dark:text-white"
+                className={`px-4 py-2 border-b text-sm font-semibold dark:text-white dark:border-slate-600 ${value[2]}`}
                 onClick={() => {
                   handleSort(value[1]);
                 }}
@@ -139,9 +146,15 @@ export default function Applications() {
         </thead>
         <tbody className="max-h-64 overflow-y-auto">
           {data.applicants.map((user) => (
-            <tr key={user._id} className="bg-gray-100 hover:bg-gray-200">
+            <tr
+              key={user._id}
+              className="bg-gray-100 hover:bg-gray-200 dark:bg-slate-500 dark:hover:bg-slate-600"
+            >
               {[...columns.entries()].map(([key, value]) => (
-                <td key={key} className="px-4 py-2 border-b text-sm">
+                <td
+                  key={key}
+                  className="px-4 py-2 border-b border-gray-200 dark:border-slate-600 text-sm"
+                >
                   {value[0](user)}
                 </td>
               ))}
@@ -151,7 +164,7 @@ export default function Applications() {
       </table>
       <div className="flex space-x-3 mt-4 items-center justify-end">
         <select
-          className="mx-1 pl-2 py-1 border rounded"
+          className="mx-1 pl-2 py-1 border rounded dark:bg-slate-600"
           value={data.size}
           onChange={(e) => {
             handleSize(parseInt(e.target.value));
@@ -168,7 +181,7 @@ export default function Applications() {
             handlePage(data.currentPage - 1);
           }}
           disabled={data.currentPage === 1}
-          className="font-normal bg-transparent px-2 py-1 disabled:opacity-50"
+          className="font-normal bg-transparent px-2 py-1 disabled:opacity-50 dark:text-white"
         >
           &lt;
         </Button>
@@ -180,7 +193,7 @@ export default function Applications() {
             max={data.totalPage}
             value={inputPage}
             onChange={handlePageInput}
-            className="mx-1 pl-2 py-1 border rounded"
+            className="mx-1 pl-2 py-1 border rounded dark:bg-slate-600"
           />
           of {data.totalPage}
           <Button
@@ -199,7 +212,7 @@ export default function Applications() {
             handlePage(data.currentPage + 1);
           }}
           disabled={data.currentPage === data.totalPage}
-          className="font-normal px-2 py-1 bg-transparent	 disabled:opacity-50"
+          className="font-normal px-2 py-1 bg-transparent	disabled:opacity-50 dark:text-white"
         >
           &gt;
         </Button>

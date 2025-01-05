@@ -15,17 +15,10 @@ const ApplicationHeader: FC<ButtonProps> = () => {
 
   const sortCriteriaOptions: SortOption[] = ['asc', 'desc'];
 
-  const sortFieldOptions: string[] = [
-    'created',
-    'firstName',
-    'lastName',
-    'hackerApplication.lastUpdated',
-  ];
-
   return (
     <div className="flex flex-col">
       <div className="flex flex-row items-center flex-wrap mb-3">
-        <div className="m-4 text-left mb-6">
+        <div className="mt-4 text-left mb-6">
           <h1 className="text-5xl font-bold text-primary">Applications</h1>
           <p className="text-xl font-bold text-slate-500 ">
             List of applicants
@@ -35,13 +28,14 @@ const ApplicationHeader: FC<ButtonProps> = () => {
           <Button className="h-12">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
+              viewBox="0 0 16 16"
               fill="currentColor"
-              className="size-5"
+              className="size-4"
             >
+              <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
               <path
                 fillRule="evenodd"
-                d="M13.5 4.938a7 7 0 1 1-9.006 1.737c.202-.257.59-.218.793.039.278.352.594.672.943.954.332.269.786-.049.773-.476a5.977 5.977 0 0 1 .572-2.759 6.026 6.026 0 0 1 2.486-2.665c.247-.14.55-.016.677.238A6.967 6.967 0 0 0 13.5 4.938ZM14 12a4 4 0 0 1-4 4c-1.913 0-3.52-1.398-3.91-3.182-.093-.429.44-.643.814-.413a4.043 4.043 0 0 0 1.601.564c.303.038.531-.24.51-.544a5.975 5.975 0 0 1 1.315-4.192.447.447 0 0 1 .431-.16A4.001 4.001 0 0 1 14 12Z"
+                d="M1.38 8.28a.87.87 0 0 1 0-.566 7.003 7.003 0 0 1 13.238.006.87.87 0 0 1 0 .566A7.003 7.003 0 0 1 1.379 8.28ZM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                 clipRule="evenodd"
               />
             </svg>
@@ -95,27 +89,19 @@ const ApplicationHeader: FC<ButtonProps> = () => {
         </div>
       </div>
       {advanced && (
-        <div className="advancedQuery">
-          <div>
+        <div>
+          <div className="space-x-2">
             <label htmlFor="sortField">Sort Field</label>
-            <select
-              id="sortField"
-              className="advancedQuery"
-              value={sortFieldIndex}
-              onChange={(e) => {
-                const index = Number(e.target.value);
-                setSortFieldIndex(index);
-                setSortField(sortFieldOptions[index]);
-              }}
-            >
-              {sortFieldOptions.map((option, index) => (
-                <option key={option} value={index}>
-                  {option}
-                </option>
-              ))}
+            <select id="sortField" value={sortFieldIndex}>
+              <option value="created">Created</option>
+              <option value="firstName">First Name</option>
+              <option value="lastName">Last Name</option>
+              <option value="hackerApplication.lastUpdated">
+                Last Updated
+              </option>
             </select>
           </div>
-          <div>
+          <div className="space-x-2">
             <label htmlFor="sortCriteria">Sort Criteria</label>
             <select
               id="sortCriteria"
