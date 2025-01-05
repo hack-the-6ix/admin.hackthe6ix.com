@@ -1,10 +1,10 @@
 import Button from '@/components/button';
 import React, { FC, useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 type SortOption = 'asc' | 'desc';
 
-interface ButtonProps {
-}
+interface ButtonProps {}
 
 const ApplicationHeader: FC<ButtonProps> = () => {
   const [advanced, setAdvanced] = useState(false);
@@ -12,8 +12,11 @@ const ApplicationHeader: FC<ButtonProps> = () => {
   const [sortField, setSortField] = useState('created');
   const [sortCriteriaIndex, setSortCriteriaIndex] = useState(0);
   const [sortCriteria, setSortCriteria] = useState<SortOption>('asc');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const sortCriteriaOptions: SortOption[] = ['asc', 'desc'];
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const sortFieldOptions: string[] = [
     'created',
@@ -21,6 +24,17 @@ const ApplicationHeader: FC<ButtonProps> = () => {
     'lastName',
     'hackerApplication.lastUpdated',
   ];
+
+  const handleSearch = () => {
+    const params = new URLSearchParams(searchParams);
+    if (searchTerm.trim()) {
+      params.set('search', searchTerm.trim());
+      params.delete('page');
+    } else {
+      params.delete('search');
+    }
+    navigate(`?${params.toString()}`);
+  };
 
   return (
     <div className="flex flex-col">
@@ -92,6 +106,37 @@ const ApplicationHeader: FC<ButtonProps> = () => {
             </svg>
             <span> Download CSV</span>
           </Button>
+        </div>
+      </div>
+      <div className="w-full pb-4">
+        <div className="relative">
+          <input
+            className="w-full bg-transparent placeholder:text-slate-500 text-slate-900 text-sm border border-slate-900 rounded-xl pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-primary  shadow-sm focus:shadow dark:border-slate-500 dark:focus:border-white"
+            placeholder="Search for an applicant..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+            }}
+          />
+          <button
+            className="absolute top-1 right-1 flex items-center rounded-xl bg-primary py-1 px-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow focus:shadow-none active:bg-slate-700 hover:bg-primary-dark active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+            type="button"
+            onClick={handleSearch}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-4 h-4 mr-2"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Search
+          </button>
         </div>
       </div>
       {advanced && (

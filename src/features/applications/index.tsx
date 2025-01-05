@@ -49,12 +49,14 @@ export async function clientLoader({ request }: { request: Request }) {
     : 'asc';
   const sortField = url.searchParams.get('sortField') ?? '';
 
+  const search = url.searchParams.get('search') ?? '';
+
   const result = await getUserProfile(
     page,
     size,
     sortCriteria as 'asc' | 'desc',
     sortField,
-    undefined,
+    search,
     { $and: [{ 'groups.hacker': true }] },
   );
 
