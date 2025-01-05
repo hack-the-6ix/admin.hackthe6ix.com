@@ -33,6 +33,127 @@ export interface StatisticsResponse {
   };
 }
 
+export type UsersResponse = User[];
+
+export interface User {
+  _id: string;
+  fullName: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  created: number;
+  checkInQR?: string;
+  computedApplicationOpen: number;
+  computedApplicationDeadline: number;
+  computedRSVPDeadline: number;
+  checkInNotes: string[];
+  checkInTime?: number;
+  rsvpForm: {
+    selectedCompanies: string[];
+    remindInPersonRSVP: boolean;
+  };
+  discord: {
+    discordID?: string;
+    username?: string;
+    verifyTime?: number;
+    additionalRoles: string[];
+    refreshToken?: string;
+    lastSyncTime?: number;
+    lastSyncStatus?: string;
+  };
+  roles: {
+    hacker: boolean;
+    admin: boolean;
+    organizer: boolean;
+    volunteer: boolean;
+  };
+  status: {
+    textStatus: string;
+    internalTextStatus: string;
+    statusReleased: boolean;
+    applied: boolean;
+    accepted: boolean;
+    rejected: boolean;
+    waitlisted: boolean;
+    confirmed: boolean;
+    declined: boolean;
+    checkedIn: boolean;
+    rsvpExpired: boolean;
+    applicationExpired: boolean;
+    canAmendTeam: boolean;
+    canApply: boolean;
+    canRSVP: boolean;
+    isRSVPOpen: boolean;
+  };
+  hackerApplication?: {
+    lastUpdated?: number;
+    teamCode?: string;
+    emailConsent?: boolean;
+    phoneNumber?: string;
+    age?: number;
+    gender?: string;
+    ethnicity?: string;
+    country?: string;
+    shirtSize?: string;
+    dietaryRestrictions?: string;
+    city?: string;
+    province?: string;
+    emergencyContact?: {
+      firstName?: string;
+      lastName?: string;
+      phoneNumber?: string;
+      relationship?: string;
+    };
+    school?: string;
+    program?: string;
+    levelOfStudy?: string;
+    graduationYear?: 2025;
+    hackathonsAttended?: string;
+    resumeFileName?: string;
+    friendlyResumeFileName?: string;
+    resumeSharePermission?: boolean;
+    githubLink?: string;
+    portfolioLink?: string;
+    linkedinLink?: string;
+    creativeResponseEssay?: string;
+    whyHT6Essay?: string;
+    mlhCOC?: boolean;
+    mlhEmail?: boolean;
+    mlhData?: boolean;
+  };
+  internal: {
+    notes?: string;
+    computedApplicationScore?: number;
+    computedFinalApplicationScore?: number;
+    applicationScores?: {
+      whyHT6: {
+        score: number;
+        reviewer?: string;
+      };
+      creativeResponse: {
+        score: number;
+        reviewer?: string;
+      };
+      project: {
+        score: number;
+        reviewer?: string;
+      };
+      portfolio: {
+        score: number;
+        reviewer?: string;
+      };
+    };
+  };
+  mailmerge: {
+    FIRST_NAME: string;
+    LAST_NAME: string;
+    MERGE_FIRST_NAME: string;
+    MERGE_LAST_NAME: string;
+    MERGE_APPLICATION_DEADLINE: string;
+    MERGE_CONFIRMATION_DEADLINE: string;
+  };
+}
+
 export async function fetchHt6Api<
   Result,
   Payload extends Record<string, unknown>,
@@ -88,3 +209,26 @@ export const getStatistics = async (update: boolean) => {
     searchParams: new URLSearchParams({ update: update ? 'true' : 'false' }),
   });
 };
+
+export async function getUserProfile(
+  page = 1,
+  size = 30,
+  sortCriteria?: 'asc' | 'desc',
+  sortField?: string,
+  text?: string,
+  filter?: Record<string, unknown>,
+) {
+  const body: Record<string, unknown> = {
+    page,
+    size,
+  };
+  if (sortCriteria) body.sortCriteria = sortCriteria;
+  if (sortField) body.sortField = sortField;
+  if (text) body.text = text;
+  if (filter) body.filter = filter;
+
+  return fetchHt6Api<UsersResponse, Record<string, unknown>>('api/get/user', {
+    payload: body,
+    method: 'POST',
+  });
+}

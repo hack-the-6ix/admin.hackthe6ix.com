@@ -1,14 +1,12 @@
 import Button from '@/components/button';
-import { FixedSizeList as List } from 'react-window';
 import React, { FC, useState } from 'react';
 
 type SortOption = 'asc' | 'desc';
 
 interface ButtonProps {
-  listRef: React.RefObject<List>;
 }
 
-const ApplicationHeader: FC<ButtonProps> = ({ listRef }) => {
+const ApplicationHeader: FC<ButtonProps> = () => {
   const [advanced, setAdvanced] = useState(false);
   const [sortFieldIndex, setSortFieldIndex] = useState(0);
   const [sortField, setSortField] = useState('created');
@@ -24,20 +22,17 @@ const ApplicationHeader: FC<ButtonProps> = ({ listRef }) => {
     'hackerApplication.lastUpdated',
   ];
 
-  const scrollToTop = () => {
-    if (listRef.current) {
-      listRef.current.scrollToItem(0);
-    }
-  };
   return (
     <div className="flex flex-col">
       <div className="flex flex-row items-center flex-wrap mb-3">
         <div className="m-4 text-left mb-6">
           <h1 className="text-5xl font-bold text-primary">Applications</h1>
-          <p className="text-xl font-bold text-slate-500 ">List of applicants</p>
+          <p className="text-xl font-bold text-slate-500 ">
+            List of applicants
+          </p>
         </div>
         <div className="flex md:flex md:flex-grow flex-row justify-end space-x-3 flex-wrap">
-          <Button onClick={scrollToTop} className="h-12">
+          <Button className="h-12">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -46,10 +41,11 @@ const ApplicationHeader: FC<ButtonProps> = ({ listRef }) => {
             >
               <path
                 fillRule="evenodd"
-                d="M9.47 4.72a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 6.31l-3.72 3.72a.75.75 0 1 1-1.06-1.06l4.25-4.25Zm-4.25 9.25 4.25-4.25a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 11.31l-3.72 3.72a.75.75 0 0 1-1.06-1.06Z"
+                d="M13.5 4.938a7 7 0 1 1-9.006 1.737c.202-.257.59-.218.793.039.278.352.594.672.943.954.332.269.786-.049.773-.476a5.977 5.977 0 0 1 .572-2.759 6.026 6.026 0 0 1 2.486-2.665c.247-.14.55-.016.677.238A6.967 6.967 0 0 0 13.5 4.938ZM14 12a4 4 0 0 1-4 4c-1.913 0-3.52-1.398-3.91-3.182-.093-.429.44-.643.814-.413a4.043 4.043 0 0 0 1.601.564c.303.038.531-.24.51-.544a5.975 5.975 0 0 1 1.315-4.192.447.447 0 0 1 .431-.16A4.001 4.001 0 0 1 14 12Z"
                 clipRule="evenodd"
               />
             </svg>
+            <span>View Rank</span>
           </Button>
           <Button className="h-12">
             <svg
@@ -84,7 +80,7 @@ const ApplicationHeader: FC<ButtonProps> = ({ listRef }) => {
                 clipRule="evenodd"
               />
             </svg>
-            <span className="ml-1"> Filter</span>
+            <span className="ml-1"> Other Filter</span>
           </Button>
           <Button className="h-12">
             <svg

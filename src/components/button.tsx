@@ -5,6 +5,7 @@ interface ButtonProps {
   children?: ReactNode;
   className?: string;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
 const Button: FC<ButtonProps> = ({
@@ -12,18 +13,20 @@ const Button: FC<ButtonProps> = ({
   children,
   className = '',
   onClick,
+  disabled,
   ...props
 }) => {
   const buttonStyles = {
-    primary: 'bg-primary hover:bg-primary-dark',
-    secondary: 'bg-slate-100 hover:bg-slate-300',
+    primary: 'text-white bg-primary hover:bg-primary-dark',
+    secondary: 'text-black bg-slate-100 hover:bg-slate-300',
   };
 
   return (
     <button
       {...props}
       onClick={onClick}
-      className={`text-white font-bold py-3 px-5 rounded-lg inline-flex items-center ${className} ${buttonStyles[buttonType]}`}
+      disabled={disabled}
+      className={`font-bold px-5 rounded-lg inline-flex items-center ${className} ${buttonStyles[buttonType]}`}
     >
       {children}
     </button>

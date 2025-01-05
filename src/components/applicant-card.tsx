@@ -1,5 +1,5 @@
 import React, { ReactNode, FC } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { ApplicantsResponse } from '../utils/ht6-api';
 
 interface ApplicantCardProps {
