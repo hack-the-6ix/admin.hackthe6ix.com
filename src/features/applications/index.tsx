@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Info } from './+types';
 import ApplicationHeader from './application-header';
-import { getUserProfile, User } from '@/utils/ht6-api';
+import { getUserProfile, getRanks, User } from '@/utils/ht6-api';
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router';
 import Button from '@/components/button';
 
@@ -27,7 +27,7 @@ const columns = new Map<
       (user) => {
         return user.internal.computedFinalApplicationScore ?
             user.internal.computedFinalApplicationScore
-          : -1; // find the right api path
+          : -1;
       },
       'internal.computedFinalApplicationScore',
       'w-[150px]',
@@ -55,21 +55,35 @@ export async function clientLoader({ request }: { request: Request }) {
       url.searchParams.get('sortCriteria')
     : 'asc';
   const sortField = url.searchParams.get('sortField') ?? '';
+  const isRanked = url.searchParams.get('isRanked') ?? 'false';
 
-  const result = await getUserProfile(
-    page,
-    size,
-    sortCriteria as 'asc' | 'desc',
-    sortField,
-    undefined,
-    { $and: [{ 'groups.hacker': true }] },
-  );
+  let result;
+  if (isRanked === 'false') {
+    result = await getUserProfile(
+      page,
+      size,
+      sortCriteria as 'asc' | 'desc',
+      sortField,
+      undefined,
+      { $and: [{ 'groups.hacker': true }] },
+    );
+  } else {
+    result = await getRanks(
+      page,
+      size,
+      sortCriteria as 'asc' | 'desc',
+      sortField,
+      undefined,
+      { $and: [{ 'groups.hacker': true }] },
+    );
+  }
 
   return {
     applicants: result.message,
     currentPage: page,
     totalPage: 50, // fake size figure out how to get later
     size: size,
+    isRanked: isRanked === 'true',
   };
 }
 
@@ -103,6 +117,12 @@ export default function Applications() {
     void navigate(`?${params.toString()}`);
   };
 
+  const handleRanked = () => {
+    const params = new URLSearchParams(searchParams);
+    params.set('isRanked', !data.isRanked ? 'true' : 'false');
+    void navigate(`?${params.toString()}`);
+  };
+
   const handlePage = (page: number) => {
     if (page >= 1 && page <= data.totalPage) {
       const params = new URLSearchParams(searchParams);
@@ -123,7 +143,7 @@ export default function Applications() {
 
   return (
     <div className="p-4 m-3">
-      <ApplicationHeader />
+      <ApplicationHeader isRanked={data.isRanked} handleRanked={handleRanked} />
       <table className="min-w-full table-auto border-collapse text-left">
         <thead className="sticky top-0.5 z-1 bg-slate-50 dark:bg-slate-700 rounded-t-lg">
           <tr>
@@ -149,6 +169,9 @@ export default function Applications() {
             <tr
               key={user._id}
               className="bg-gray-100 hover:bg-gray-200 dark:bg-slate-500 dark:hover:bg-slate-600"
+              onClick={() => {
+                void navigate(`apps/${user._id}`);
+              }}
             >
               {[...columns.entries()].map(([key, value]) => (
                 <td

@@ -232,3 +232,28 @@ export async function getUserProfile(
     method: 'POST',
   });
 }
+
+export async function getRanks(
+  page = 1,
+  size = 30,
+  sortCriteria?: 'asc' | 'desc',
+  sortField?: string,
+  text?: string,
+  filter?: Record<string, unknown>,
+) {
+  const body: Record<string, unknown> = {
+    page,
+    size,
+  };
+  if (sortCriteria) body.sortCriteria = sortCriteria;
+  if (sortField) body.sortField = sortField;
+  if (text) body.text = text;
+  if (filter) body.filter = filter;
+
+  return fetchHt6Api<UsersResponse, Record<string, unknown>>(
+    '/api/action/getRanks',
+    {
+      method: 'GET',
+    },
+  );
+}

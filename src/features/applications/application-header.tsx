@@ -4,9 +4,11 @@ import React, { FC, useState } from 'react';
 type SortOption = 'asc' | 'desc';
 
 interface ButtonProps {
+  isRanked: boolean;
+  handleRanked: () => void;
 }
 
-const ApplicationHeader: FC<ButtonProps> = () => {
+const ApplicationHeader: FC<ButtonProps> = ({ isRanked, handleRanked }) => {
   const [advanced, setAdvanced] = useState(false);
   const [sortFieldIndex, setSortFieldIndex] = useState(0);
   const [sortField, setSortField] = useState('created');
@@ -25,7 +27,7 @@ const ApplicationHeader: FC<ButtonProps> = () => {
           </p>
         </div>
         <div className="flex md:flex md:flex-grow flex-row justify-end space-x-3 flex-wrap">
-          <Button className="h-12">
+          <Button className="h-12" onClick={handleRanked}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
@@ -39,7 +41,7 @@ const ApplicationHeader: FC<ButtonProps> = () => {
                 clipRule="evenodd"
               />
             </svg>
-            <span>View Rank</span>
+            <span>{isRanked ? 'View No Rank' : 'View Final Rank'}</span>
           </Button>
           <Button className="h-12">
             <svg
