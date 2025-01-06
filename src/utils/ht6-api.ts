@@ -215,7 +215,7 @@ export async function getUserProfile(
   size = 30,
   sortCriteria?: 'asc' | 'desc',
   sortField?: string,
-  text?: string,
+  search?: string,
   filter?: Record<string, unknown>,
 ) {
   const body: Record<string, unknown> = {
@@ -224,8 +224,22 @@ export async function getUserProfile(
   };
   if (sortCriteria) body.sortCriteria = sortCriteria;
   if (sortField) body.sortField = sortField;
-  if (text) body.text = text;
   if (filter) body.filter = filter;
+  body.filter = filter ?? {};
+  if (search) {
+    const searchParts = search.trim().split(/\s+/);
+    const regexConditions = searchParts.map((part) => ({
+      $or: [
+        { firstName: { $regex: part, $options: 'i' } },
+        { lastName: { $regex: part, $options: 'i' } },
+      ],
+    }));
+
+    body.filter = {
+      ...body.filter,
+      $and: regexConditions, // Combine all regex conditions
+    };
+  }
 
   return fetchHt6Api<UsersResponse, Record<string, unknown>>('api/get/user', {
     payload: body,

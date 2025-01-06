@@ -33,7 +33,7 @@ const ApplicationHeader: FC<ButtonProps> = () => {
     } else {
       params.delete('search');
     }
-    navigate(`?${params.toString()}`);
+    void navigate(`?${params.toString()}`);
   };
 
   return (
