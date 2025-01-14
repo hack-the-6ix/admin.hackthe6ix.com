@@ -111,7 +111,7 @@ const ApplicationHeader: FC<ButtonProps> = () => {
       <div className="w-full pb-4">
         <div className="relative">
           <input
-            className="w-full bg-transparent placeholder:text-slate-500 text-slate-900 text-sm border border-slate-900 rounded-xl pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-primary  shadow-sm focus:shadow dark:border-slate-500 dark:focus:border-white"
+            className="w-full bg-white dark:bg-slate-700 placeholder:text-slate-500 text-slate-900 dark:text-slate-100 text-sm border border-slate-900 rounded-xl pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-primary  shadow-sm focus:shadow dark:border-slate-500 dark:focus:border-white"
             placeholder="Search for an applicant..."
             value={searchTerm}
             onChange={(e) => {
@@ -119,7 +119,7 @@ const ApplicationHeader: FC<ButtonProps> = () => {
             }}
           />
           <button
-            className="absolute top-1 right-1 flex items-center rounded-xl bg-primary py-1 px-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow focus:shadow-none active:bg-slate-700 hover:bg-primary-dark active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+            className="absolute top-1 right-1 flex items-center rounded-xl bg-primary dark:bg-primary-dark dark:hover:bg-primary py-1 px-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow focus:shadow-none active:bg-slate-700 hover:bg-primary-dark active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
             type="button"
             onClick={handleSearch}
           >
