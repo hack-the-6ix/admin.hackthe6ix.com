@@ -46,7 +46,7 @@ const ApplicationHeader: FC<ButtonProps> = () => {
           </p>
         </div>
         <div className="flex md:flex md:flex-grow flex-row justify-end space-x-3 flex-wrap">
-          <Button className="h-12">
+          <Button className="h-12 dark:bg-primary-dark dark:hover:bg-primary">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -61,7 +61,7 @@ const ApplicationHeader: FC<ButtonProps> = () => {
             </svg>
             <span>View Rank</span>
           </Button>
-          <Button className="h-12">
+          <Button className="h-12  dark:bg-primary-dark dark:hover:bg-primary">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -80,7 +80,7 @@ const ApplicationHeader: FC<ButtonProps> = () => {
             onClick={() => {
               setAdvanced(!advanced);
             }}
-            className="h-12"
+            className="h-12  dark:bg-primary-dark dark:hover:bg-primary"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -96,7 +96,7 @@ const ApplicationHeader: FC<ButtonProps> = () => {
             </svg>
             <span className="ml-1"> Other Filter</span>
           </Button>
-          <Button className="h-12">
+          <Button className="h-12  dark:bg-primary-dark dark:hover:bg-primary">
             <svg
               className="fill-current w-4 h-4 mr-2"
               xmlns="http://www.w3.org/2000/svg"

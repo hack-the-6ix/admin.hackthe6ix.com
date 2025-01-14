@@ -141,7 +141,10 @@ export default function Applications() {
         </thead>
         <tbody className="max-h-64 overflow-y-auto">
           {data.applicants.map((user) => (
-            <tr key={user._id} className="bg-gray-100 hover:bg-gray-200">
+            <tr
+              key={user._id}
+              className="bg-gray-100 hover:bg-gray-200  dark:bg-slate-600 dark:hover:bg-slate-700"
+            >
               {[...columns.entries()].map(([key, value]) => (
                 <td key={key} className="px-4 py-2 border-b text-sm">
                   {value[0](user)}
@@ -151,18 +154,26 @@ export default function Applications() {
           ))}
         </tbody>
       </table>
-      <div className="flex space-x-3 mt-4 items-center justify-end">
+      <div className="flex space-x-3 mt-4 items-center justify-end ">
         <select
-          className="mx-1 pl-2 py-1 border rounded"
+          className="mx-1 pl-2 py-1 border rounded dark:bg-slate-700"
           value={data.size}
           onChange={(e) => {
             handleSize(parseInt(e.target.value));
           }}
         >
-          <option value="10">10 per page</option>
-          <option value="25">25 per page</option>
-          <option value="50">50 per page</option>
-          <option value="100">100 per page</option>
+          <option value="10" className="dark:bg-slate-500">
+            10 per page
+          </option>
+          <option value="25" className="dark:bg-slate-500">
+            25 per page
+          </option>
+          <option value="50" className="dark:bg-slate-500">
+            50 per page
+          </option>
+          <option value="100" className="dark:bg-slate-500">
+            100 per page
+          </option>
         </select>
         <Button
           buttonType="secondary"
@@ -170,7 +181,7 @@ export default function Applications() {
             handlePage(data.currentPage - 1);
           }}
           disabled={data.currentPage === 1}
-          className="font-normal bg-transparent px-2 py-1 disabled:opacity-50"
+          className="font-normal bg-transparent px-2 py-1 disabled:opacity-50 dark:text-white dark:hover:bg-slate-700"
         >
           &lt;
         </Button>
@@ -182,7 +193,7 @@ export default function Applications() {
             max={data.totalPage}
             value={inputPage}
             onChange={handlePageInput}
-            className="mx-1 pl-2 py-1 border rounded"
+            className="mx-1 pl-2 py-1 border rounded dark:bg-slate-700"
           />
           of {data.totalPage}
           <Button
@@ -190,7 +201,7 @@ export default function Applications() {
             onClick={() => {
               handlePage(inputPage);
             }}
-            className="font-normal ml-2 px-2 py-1"
+            className="font-normal ml-2 px-2 py-1 bg-primary hover:bg-primary-dark dark:bg-primary-dark dark:hover:bg-primary"
           >
             Go
           </Button>
@@ -201,7 +212,7 @@ export default function Applications() {
             handlePage(data.currentPage + 1);
           }}
           disabled={data.currentPage === data.totalPage}
-          className="font-normal px-2 py-1 bg-transparent	 disabled:opacity-50"
+          className="font-normal px-2 py-1 bg-transparent	 disabled:opacity-50  dark:text-white dark:hover:bg-slate-700"
         >
           &gt;
         </Button>
