@@ -1,6 +1,6 @@
 import Button from '@/components/button';
 import React, { FC, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router';
 
 type SortOption = 'asc' | 'desc';
 
@@ -8,7 +8,6 @@ interface ButtonProps {
   isRanked: boolean;
   handleRanked: () => void;
 }
-interface ButtonProps {}
 
 const ApplicationHeader: FC<ButtonProps> = ({ isRanked, handleRanked }) => {
   const [advanced, setAdvanced] = useState(false);
@@ -17,7 +16,6 @@ const ApplicationHeader: FC<ButtonProps> = ({ isRanked, handleRanked }) => {
   const [sortCriteriaIndex, setSortCriteriaIndex] = useState(0);
   const [sortCriteria, setSortCriteria] = useState<SortOption>('asc');
   const [searchTerm, setSearchTerm] = useState('');
-
   const sortCriteriaOptions: SortOption[] = ['asc', 'desc'];
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
