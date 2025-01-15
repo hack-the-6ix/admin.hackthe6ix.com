@@ -210,7 +210,7 @@ export const getStatistics = async (update: boolean) => {
   });
 };
 
-export async function getUserProfile(
+export async function getUser(
   page = 1,
   size = 30,
   sortCriteria?: 'asc' | 'desc',
@@ -233,7 +233,7 @@ export async function getUserProfile(
   });
 }
 
-export async function getRanks(
+export async function getRankedUser(
   page = 1,
   size = 30,
   sortCriteria?: 'asc' | 'desc',

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Info } from './+types';
 import ApplicationHeader from './application-header';
-import { getUserProfile, getRanks, User } from '@/utils/ht6-api';
+import { getUser, getRankedUser, User } from '@/utils/ht6-api';
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router';
 import Button from '@/components/button';
 
@@ -10,7 +10,7 @@ const columns = new Map<
   string,
   [(user: User) => React.ReactNode, string, string]
 >([
-  ['Name', [(user) => user.fullName, 'fullName', 'w-[200px]']],
+  ['Name', [(user) => user.fullName, 'lastName', 'w-[200px]']],
   [
     'Status',
     [
@@ -59,7 +59,7 @@ export async function clientLoader({ request }: { request: Request }) {
 
   let result;
   if (isRanked === 'false') {
-    result = await getUserProfile(
+    result = await getUser(
       page,
       size,
       sortCriteria as 'asc' | 'desc',
@@ -68,7 +68,7 @@ export async function clientLoader({ request }: { request: Request }) {
       { $and: [{ 'groups.hacker': true }] },
     );
   } else {
-    result = await getRanks(
+    result = await getRankedUser(
       page,
       size,
       sortCriteria as 'asc' | 'desc',
