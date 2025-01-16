@@ -11,6 +11,7 @@ export default [
     route('admin-settings', 'features/admin-settings/index.tsx'),
     route('apps', 'features/applications/index.tsx'),
     route('external-users', 'features/external-users/index.tsx'),
+    route('review', 'features/review/index.tsx'),
     index('features/home/index.tsx'),
   ]),
   ...prefix('auth', [
