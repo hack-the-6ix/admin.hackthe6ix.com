@@ -169,7 +169,7 @@ export default function Applications() {
           {data.applicants.map((user) => (
             <tr
               key={user._id}
-              className="bg-gray-100 hover:bg-gray-200 dark:bg-slate-500 dark:hover:bg-slate-700"
+              className="bg-gray-100 hover:bg-gray-200 dark:bg-slate-600 dark:hover:bg-slate-700"
               onClick={() => {
                 void navigate(`apps/${user._id}`);
               }}
