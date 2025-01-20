@@ -15,7 +15,9 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
   const submit = async () => {
     try {
       const processedCategory: string | undefined =
-        selectedCategory === '' ? undefined : APINames[selectedCategory];
+        selectedCategory === '' ? undefined : (
+          APINames[selectedCategory as keyof typeof APINames]
+        );
 
       const result = await getCandidate(true, processedCategory);
 
