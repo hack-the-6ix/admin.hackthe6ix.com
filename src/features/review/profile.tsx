@@ -6,11 +6,11 @@ export default function Profile({ candidate }: { candidate: User }) {
     Gender: candidate.hackerApplication?.gender ?? 'Not Provided',
     Ethnicity: candidate.hackerApplication?.ethnicity ?? 'Not Provided',
     Location:
-      candidate.hackerApplication?.city +
+      (candidate.hackerApplication?.city ?? 'Not Provided') +
       ', ' +
-      candidate.hackerApplication?.province +
+      (candidate.hackerApplication?.province ?? 'Not Provided') +
       ', ' +
-      candidate.hackerApplication?.country,
+      (candidate.hackerApplication?.country ?? 'Not Provided'),
   };
 
   const education = {

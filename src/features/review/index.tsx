@@ -22,7 +22,7 @@ const ReviewPage = () => {
   console.log(candidate);
   const getCategory = (): string | undefined => {
     const result = Object.entries(candidate.internal.applicationScores).find(
-      ([_, data]) => data.score === -1,
+      ([, data]) => data.score === -1,
     );
     let unreviewedCategory = result ? result[0] : 'project';
     if (unreviewedCategory === 'portfolio') {
@@ -38,7 +38,10 @@ const ReviewPage = () => {
   };
 
   const parsedCategory = getCategory();
-  const maxScore: number = parsedCategory ? maxPerCategory[parsedCategory] : 4;
+  const maxScore: number =
+    parsedCategory ?
+      maxPerCategory[parsedCategory as keyof typeof maxPerCategory]
+    : 4;
 
   const getResponse = (): string => {
     if (parsedCategory === 'creativeResponseEssay') {
