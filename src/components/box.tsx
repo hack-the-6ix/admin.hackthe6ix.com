@@ -5,12 +5,21 @@ interface BoxProps {
   children?: ReactNode;
   className?: string;
   items?: string[];
+  background?: string;
+  innerBackground?: string;
 }
 
-const Box: FC<BoxProps> = ({ title, children, className = '', items = [] }) => {
+const Box: FC<BoxProps> = ({
+  title,
+  children,
+  className = '',
+  items = [],
+  background = 'bg-primary dark:bg-slate-700',
+  innerBackground = 'bg-primary-light dark:bg-slate-800',
+}) => {
   return (
     <div
-      className={`bg-primary dark:bg-slate-700 text-white p-4 text-center rounded-2xl ${className}`}
+      className={`${background} text-white p-4 text-center rounded-2xl ${className}`}
     >
       {title && <h2 className="text-2xl font-bold mb-2">{title}</h2>}
       {items.length > 0 && (
@@ -19,7 +28,7 @@ const Box: FC<BoxProps> = ({ title, children, className = '', items = [] }) => {
           {items.map((item, index) => (
             <li
               key={index}
-              className="font-bold text-black dark:text-slate-400 bg-primary-light dark:bg-slate-800 p-2 pl-4 pr-4 rounded-xl"
+              className={`${innerBackground} font-bold text-black dark:text-slate-400  p-2 pl-4 pr-4 rounded-xl`}
             >
               {item}
             </li>

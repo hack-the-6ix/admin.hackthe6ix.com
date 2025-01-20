@@ -1,13 +1,35 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { maxPerCategory, APINames } from '@/utils/const';
+import { getCandidate } from '@/utils/ht6-api';
 
 interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
 const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedAmount, setSelectedAmount] = useState<string>(1);
+  const [selectedAmount, setSelectedAmount] = useState<string>('1');
+  const navigation = useNavigate();
+
+  const submit = async () => {
+    try {
+      const processedCategory: string | undefined =
+        selectedCategory === '' ? undefined : APINames[selectedCategory];
+
+      const result = await getCandidate(true, processedCategory);
+
+      if (result.message._id) {
+        void navigation('/review', {
+          state: { candidate: result.message, category: selectedCategory },
+        });
+      } else {
+        alert('Error, request failed');
+      }
+    } catch (error) {
+      alert(error);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -36,10 +58,12 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
               }}
               className="flex-1 w-full border border-slate-300 dark:border-white rounded-md p-2 mb-4 focus:ring-primary focus:border-primary dark:bg-slate-500"
             >
-              <option value="">I want to only grade...</option>
-              <option value="math">Math</option>
-              <option value="science">Science</option>
-              <option value="english">English</option>
+              <option value="">No Preference</option>
+              {Object.keys(maxPerCategory).map((key) => (
+                <option value={key} key={key}>
+                  {key}
+                </option>
+              ))}
             </select>
             <select
               value={selectedAmount}
@@ -55,14 +79,9 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
           </div>
           <button
             onClick={() => {
-              alert('Review started!');
+              void submit();
             }}
-            disabled={!selectedCategory}
-            className={`w-full py-2 px-4 text-white font-medium rounded-md ${
-              selectedCategory ?
-                'bg-primary hover:bg-primary-dark dark:bg-slate-800 dark:hover:bg-slate-700'
-              : 'bg-slate-300 cursor-not-allowed dark:bg-slate-700'
-            }`}
+            className="w-full py-2 px-4 text-white font-medium rounded-md bg-primary hover:bg-primary-dark dark:bg-slate-800 dark:hover:bg-slate-700"
           >
             Review
           </button>

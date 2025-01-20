@@ -210,6 +210,19 @@ export const getStatistics = async (update: boolean) => {
   });
 };
 
+export const getCandidate = async (
+  update: boolean,
+  category: string | undefined,
+) => {
+  return fetchHt6Api<User, never>(
+    `/api/action/getCandidate${category ? '?category=' + category : ''}`,
+    {
+      method: 'GET',
+      searchParams: new URLSearchParams({ update: update ? 'true' : 'false' }),
+    },
+  );
+};
+
 export async function getUser(
   page = 1,
   size = 30,
