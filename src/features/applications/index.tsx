@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import type { Info } from './+types';
 import ApplicationHeader from './application-header';
 import { getUser, getRankedUser, User } from '@/utils/ht6-api';
-import { useLoaderData, useNavigate, useSearchParams } from 'react-router';
+import {
+  useLoaderData,
+  useNavigate,
+  useSearchParams,
+} from 'react-router';
 import Button from '@/components/button';
 
 // function to get data, path for sorting, width
@@ -27,7 +31,7 @@ const columns = new Map<
       (user) => {
         return user.internal.computedFinalApplicationScore ?
             user.internal.computedFinalApplicationScore
-          : -1;
+          : 'No Rank';
       },
       'internal.computedFinalApplicationScore',
       'w-[150px]',
@@ -36,7 +40,11 @@ const columns = new Map<
   [
     'Personal Rating',
     [
-      (user) => user.internal.computedApplicationScore,
+      (user) => {
+        return user.internal.computedApplicationScore !== -1 ?
+            user.internal.computedApplicationScore
+          : 'No Rank';
+      },
       'internal.computedApplicationScore',
       'w-[150px]',
     ],
@@ -69,14 +77,7 @@ export async function clientLoader({ request }: { request: Request }) {
       { $and: [{ 'groups.hacker': true }] },
     );
   } else {
-    result = await getRankedUser(
-      page,
-      size,
-      sortCriteria as 'asc' | 'desc',
-      sortField,
-      search,
-      { $and: [{ 'groups.hacker': true }] },
-    );
+    result = await getRankedUser();
   }
 
   return {
@@ -121,6 +122,8 @@ export default function Applications() {
   const handleRanked = () => {
     const params = new URLSearchParams(searchParams);
     params.set('isRanked', !data.isRanked ? 'true' : 'false');
+    params.delete('sortField');
+    params.delete('sortCriteria');
     void navigate(`?${params.toString()}`);
   };
 
@@ -153,7 +156,7 @@ export default function Applications() {
                 key={key}
                 className={`px-4 py-2 border-b text-sm font-semibold dark:text-white dark:border-slate-600 ${value[2]}`}
                 onClick={() => {
-                  handleSort(value[1]);
+                  if (!data.isRanked && key != 'Status') handleSort(value[1]);
                 }}
               >
                 {key}

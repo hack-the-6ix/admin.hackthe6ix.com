@@ -247,23 +247,7 @@ export async function getUser(
   });
 }
 
-export async function getRankedUser(
-  page = 1,
-  size = 30,
-  sortCriteria?: 'asc' | 'desc',
-  sortField?: string,
-  text?: string,
-  filter?: Record<string, unknown>,
-) {
-  const body: Record<string, unknown> = {
-    page,
-    size,
-  };
-  if (sortCriteria) body.sortCriteria = sortCriteria;
-  if (sortField) body.sortField = sortField;
-  if (text) body.text = text;
-  if (filter) body.filter = filter;
-
+export async function getRankedUser() {
   return fetchHt6Api<UsersResponse, Record<string, unknown>>(
     '/api/action/getRanks',
     {
