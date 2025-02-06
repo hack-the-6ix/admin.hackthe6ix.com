@@ -1,10 +1,17 @@
 import { useLocation } from 'react-router-dom';
 import { User } from '@/utils/ht6-api';
-import { maxPerCategory, categoryNames, ratingScale } from '@/utils/const';
+import {
+  maxPerCategory,
+  categoryNames,
+  ratingScale,
+  ratingColors,
+} from '@/utils/const';
 import { useState } from 'react';
 import QuestionBox from '@/components/questionBox';
 import FullProfile from './fullProfile';
 import Profile from './profile';
+import { gradeCandidate } from '@/utils/ht6-api';
+import { useNavigate } from 'react-router-dom';
 
 interface ReviewPageState {
   candidate: User;
@@ -18,6 +25,7 @@ const ReviewPage = () => {
   const [showName, setShowName] = useState<boolean>(false);
   const [selectedRating, setSelectedRating] = useState<number>(3);
   const [notes, setNotes] = useState<string>('');
+  const navigation = useNavigate();
 
   console.log(candidate);
   const getCategory = (): string | undefined => {
@@ -69,6 +77,21 @@ const ReviewPage = () => {
 
   const showProfile = () => {
     setToggleProfile(!toggleProfile);
+  };
+
+  const submitScores = async () => {
+    try {
+      await gradeCandidate(candidate._id, selectedRating.toString());
+      alert('Review submitted successfully!');
+      setToggleProfile(false);
+      setShowName(false);
+      setSelectedRating(3);
+      setNotes('');
+      void navigation('/apps');
+    } catch (error) {
+      console.error('Error submitting scores:', error);
+      alert('Error submitting review. Please try again.');
+    }
   };
 
   const showNameFunction = () => {
@@ -141,9 +164,13 @@ const ReviewPage = () => {
                 className={`text-4xl cursor-pointer rounded-lg pt-4 pb-4 
                 ${
                   selectedRating === i ?
-                    'bg-amber-500 dark:bg-primary-dark text-black font-bold'
+                    'dark:bg-primary-dark text-black font-bold'
                   : 'bg-primary-light dark:bg-slate-600 hover:bg-primary-dark hover:dark:bg-slate-800'
                 }`}
+                style={{
+                  backgroundColor:
+                    selectedRating === i ? ratingColors[i] : undefined,
+                }}
               >
                 <div className="text-4xl">{ratingScale[i]}</div>
                 <div className="text-sm mt-2 text-black dark:text-white">
@@ -153,7 +180,7 @@ const ReviewPage = () => {
             ))}
           </div>
           <button
-            onClick={showProfile}
+            onClick={submitScores}
             className="mt-4 p-2 pl-4 pr-4 bg-amber-500 rounded-2xl text-white hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark"
           >
             Submit

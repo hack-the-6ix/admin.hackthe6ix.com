@@ -223,6 +223,16 @@ export const getCandidate = async (
   );
 };
 
+export const gradeCandidate = async (candidateID: string, grade: string) => {
+  return fetchHt6Api<User, never>(`/api/action/gradeCandidate`, {
+    method: 'POST',
+    searchParams: new URLSearchParams({
+      candidateID: candidateID,
+      grade: grade,
+    }),
+  });
+};
+
 export async function getUser(
   page = 1,
   size = 30,
