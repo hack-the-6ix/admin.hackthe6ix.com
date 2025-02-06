@@ -20,3 +20,10 @@ export const APINames = {
 };
 
 export const ratingScale = ['🤬', '😐', '🙂', '😁', '😍'];
+export const ratingColors = [
+  '#c41000',
+  '#de7d0d',
+  '#decb1d',
+  '#87de1d',
+  '#00d60b',
+];
