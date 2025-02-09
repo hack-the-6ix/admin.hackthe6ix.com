@@ -246,7 +246,6 @@ export async function getUser(
     method: 'POST',
   });
 }
-
 export async function getRankedUser() {
   return fetchHt6Api<UsersResponse, Record<string, unknown>>(
     '/api/action/getRanks',

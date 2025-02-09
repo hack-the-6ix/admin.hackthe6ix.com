@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import type { Info } from './+types';
 import ApplicationHeader from './application-header';
 import { getUser, getRankedUser, User } from '@/utils/ht6-api';
@@ -6,25 +6,26 @@ import {
   useLoaderData,
   useNavigate,
   useSearchParams,
+  Await,
 } from 'react-router';
 import Button from '@/components/button';
 
-// function to get data, path for sorting, width
+// Table header name, function to get data, path for sorting, width
 const columns = new Map<
   string,
   [(user: User) => React.ReactNode, string, string]
 >([
-  ['Name', [(user) => user.fullName, 'lastName', 'w-[200px]']],
+  ['Name', [(user) => user.fullName, 'lastName', 'w-[250px]']],
   [
     'Status',
     [
       (user) => user.status.internalTextStatus,
       'status.internalTextStatus',
-      'w-[150px]',
+      'w-[200px]',
     ],
   ],
   ['ID', [(user) => user._id, '_id', 'w-[100px]']],
-  ['Email', [(user) => user.email, 'email', 'w-[250px]']],
+  ['Email', [(user) => user.email, 'email', 'w-[300px]']],
   [
     'Final Rating',
     [
@@ -34,7 +35,7 @@ const columns = new Map<
           : 'No Rank';
       },
       'internal.computedFinalApplicationScore',
-      'w-[150px]',
+      'w-[200px]',
     ],
   ],
   [
@@ -46,7 +47,7 @@ const columns = new Map<
           : 'No Rank';
       },
       'internal.computedApplicationScore',
-      'w-[150px]',
+      'w-[200px]',
     ],
   ],
 ]);
@@ -66,24 +67,16 @@ export async function clientLoader({ request }: { request: Request }) {
   const isRanked = url.searchParams.get('isRanked') ?? 'false';
   const search = url.searchParams.get('search') ?? '';
 
-  let result;
-  if (isRanked === 'false') {
-    result = await getUser(
-      page,
-      size,
-      sortCriteria as 'asc' | 'desc',
-      sortField,
-      search,
-      { $and: [{ 'groups.hacker': true }] },
-    );
-  } else {
-    result = await getRankedUser();
-  }
+  const applicantsData = await (isRanked === 'false' ?
+    getUser(page, size, sortCriteria as 'asc' | 'desc', sortField, search, {
+      $and: [{ 'groups.hacker': true }],
+    })
+  : getRankedUser());
 
   return {
-    applicants: result.message,
+    applicants: applicantsData.message,
     currentPage: page,
-    totalPage: 50, // fake size figure out how to get later
+    totalPage: 50,
     size: size,
     isRanked: isRanked === 'true',
   };
@@ -94,6 +87,7 @@ export default function Applications() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [inputPage, setInputPage] = useState(data.currentPage);
+  const [isTableLoading, setIsTableLoading] = useState(false);
 
   const handleSort = (field?: string) => {
     if (!field) return;
@@ -116,6 +110,7 @@ export default function Applications() {
       params.set('sortField', field);
       params.set('sortCriteria', 'asc');
     }
+    setIsTableLoading(true);
     void navigate(`?${params.toString()}`);
   };
 
@@ -124,6 +119,7 @@ export default function Applications() {
     params.set('isRanked', !data.isRanked ? 'true' : 'false');
     params.delete('sortField');
     params.delete('sortCriteria');
+    setIsTableLoading(true);
     void navigate(`?${params.toString()}`);
   };
 
@@ -145,50 +141,73 @@ export default function Applications() {
     setInputPage(parseInt(e.target.value));
   };
 
+  useEffect(() => {
+    setIsTableLoading(false);
+  }, [data]);
+
+  useEffect(() => {
+    setInputPage(data.currentPage);
+  }, [data.currentPage]);
+
+  const TableLoadingIndicator = () => (
+    <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-slate-50/80 dark:bg-slate-800 text-center py-2 px-4 rounded-lg shadow-md">
+      <span className="font-semibold text-primary dark:text-white">
+        Loading data...
+      </span>
+    </div>
+  );
+
   return (
     <div className="p-4 m-3">
       <ApplicationHeader isRanked={data.isRanked} handleRanked={handleRanked} />
-      <table className="min-w-full table-auto border-collapse text-left">
-        <thead className="sticky top-0.5 z-1 bg-slate-50 dark:bg-slate-700 rounded-t-lg">
-          <tr>
-            {[...columns.entries()].map(([key, value]) => (
-              <th
-                key={key}
-                className={`px-4 py-2 border-b text-sm font-semibold dark:text-white dark:border-slate-600 ${value[2]}`}
-                onClick={() => {
-                  if (!data.isRanked && key != 'Status') handleSort(value[1]);
-                }}
-              >
-                {key}
-                {searchParams.get('sortField') === value[1] &&
-                  (searchParams.get('sortCriteria') === 'asc' ? ' ↑'
-                  : searchParams.get('sortCriteria') === 'desc' ? ' ↓'
-                  : '')}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="max-h-64 overflow-y-auto">
-          {data.applicants.map((user) => (
-            <tr
-              key={user._id}
-              className="bg-gray-100 hover:bg-gray-200 dark:bg-slate-500 dark:hover:bg-slate-700"
-              onClick={() => {
-                void navigate(`apps/${user._id}`);
-              }}
-            >
+      <div>
+        {isTableLoading && <TableLoadingIndicator />}
+        <table className="min-w-full table-auto border-collapse text-left">
+          <thead className="sticky top-0.5 z-1 bg-slate-50 dark:bg-slate-700 rounded-t-lg">
+            <tr>
               {[...columns.entries()].map(([key, value]) => (
-                <td
+                <th
                   key={key}
-                  className="px-4 py-2 border-b border-gray-200 dark:border-slate-600 text-sm"
+                  className={`px-4 py-2 border-b text-sm font-semibold dark:text-white dark:border-slate-600 ${value[2]}`}
+                  onClick={() => {
+                    if (!data.isRanked && key != 'Status') handleSort(value[1]);
+                  }}
                 >
-                  {value[0](user)}
-                </td>
+                  {key}
+                  {searchParams.get('sortField') === value[1] &&
+                    (searchParams.get('sortCriteria') === 'asc' ? ' ↑'
+                    : searchParams.get('sortCriteria') === 'desc' ? ' ↓'
+                    : '')}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <Suspense>
+            <Await resolve={data} errorElement={<p>Oh no...</p>}>
+              <tbody className="max-h-64 overflow-y-auto">
+                {data.applicants.map((user) => (
+                  <tr
+                    key={user._id}
+                    className="bg-gray-100 hover:bg-gray-200 dark:bg-slate-500 dark:hover:bg-slate-700"
+                    onClick={() => {
+                      void navigate(`apps/${user._id}`);
+                    }}
+                  >
+                    {[...columns.entries()].map(([key, value]) => (
+                      <td
+                        key={key}
+                        className="px-4 py-2 border-b border-gray-200 dark:border-slate-600 text-sm"
+                      >
+                        {value[0](user)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </Await>
+          </Suspense>
+        </table>
+      </div>
       <div className="flex space-x-3 mt-4 items-center justify-end ">
         <select
           className="mx-1 pl-2 py-1 border rounded dark:bg-slate-700"
@@ -236,7 +255,7 @@ export default function Applications() {
             onClick={() => {
               handlePage(inputPage);
             }}
-            className="font-normal ml-2 px-2 py-1 bg-primary hover:bg-primary-dark dark:bg-primary-dark dark:hover:bg-primary"
+            className="font-normal ml-2 px-2 py-1 bg-primary hover:bg-primary-dark dark:bg-primary-dark dark:hover:bg-primary dark:text-white"
           >
             Go
           </Button>
