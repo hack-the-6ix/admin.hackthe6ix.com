@@ -162,13 +162,13 @@ export default function Applications() {
       <ApplicationHeader isRanked={data.isRanked} handleRanked={handleRanked} />
       <div>
         {isTableLoading && <TableLoadingIndicator />}
-        <table className="min-w-full table-auto border-collapse text-left">
+        <table className="min-w-full table-fixed border-collapse text-left">
           <thead className="sticky top-0.5 z-1 bg-slate-50 dark:bg-slate-700 rounded-t-lg">
             <tr>
               {[...columns.entries()].map(([key, value]) => (
                 <th
                   key={key}
-                  className={`px-4 py-2 border-b text-sm font-semibold dark:text-white dark:border-slate-600 ${value[2]}`}
+                  className={`px-2 py-2 border-b text-sm font-semibold dark:text-white dark:border-slate-600 ${value[2]} truncate`}
                   onClick={() => {
                     if (!data.isRanked && key != 'Status') handleSort(value[1]);
                   }}
@@ -196,7 +196,7 @@ export default function Applications() {
                     {[...columns.entries()].map(([key, value]) => (
                       <td
                         key={key}
-                        className="px-4 py-2 border-b border-gray-200 dark:border-slate-600 text-sm"
+                        className={`px-2 py-2 border-b border-gray-200 dark:border-slate-600 text-sm truncate ${value[2]}`}
                       >
                         {value[0](user)}
                       </td>
@@ -208,7 +208,7 @@ export default function Applications() {
           </Suspense>
         </table>
       </div>
-      <div className="flex space-x-3 mt-4 items-center justify-end ">
+      <div className="flex space-x-3 mt-4 items-center justify-end">
         <select
           className="mx-1 pl-2 py-1 border rounded dark:bg-slate-700"
           value={data.size}
