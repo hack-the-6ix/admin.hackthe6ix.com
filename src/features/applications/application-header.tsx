@@ -75,6 +75,11 @@ const ApplicationHeader: FC<ButtonProps> = ({ isRanked, handleRanked }) => {
             onChange={(e) => {
               setSearchTerm(e.target.value);
             }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch();
+              }
+            }}
             disabled={isRanked}
           />
           <button
