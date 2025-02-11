@@ -294,3 +294,13 @@ export async function getRankedUser(
     },
   );
 }
+
+export const getFileURL = async (filename: string) => {
+  return fetchHt6Api<User, never>(`/api/gridfs`, {
+    method: 'GET-FILE',
+    searchParams: new URLSearchParams({
+      filename: filename,
+      bucket: 'resumes',
+    }),
+  });
+};
