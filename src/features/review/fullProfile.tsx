@@ -31,9 +31,18 @@ export default function FullProfile({ candidate }: { candidate: User }) {
     Hackathons:
       candidate.hackerApplication?.hackathonsAttended ?? 'Not Provided',
     Resume: candidate.hackerApplication?.resumeFileName ?? 'Not Provided',
-    GitHub: candidate.hackerApplication?.githubLink ?? 'Not Provided',
-    Portfolio: candidate.hackerApplication?.portfolioLink ?? 'Not Provided',
-    LinkedIn: candidate.hackerApplication?.linkedinLink ?? 'Not Provided',
+    GitHub:
+      candidate.hackerApplication?.githubLink ?
+        `<a href="${candidate.hackerApplication.githubLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">${candidate.hackerApplication.githubLink}</a>`
+      : 'Not Provided',
+    Portfolio:
+      candidate.hackerApplication?.portfolioLink ?
+        `<a href="${candidate.hackerApplication.portfolioLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">${candidate.hackerApplication.portfolioLink}</a>`
+      : 'Not Provided',
+    LinkedIn:
+      candidate.hackerApplication?.linkedinLink ?
+        `<a href="${candidate.hackerApplication.linkedinLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">${candidate.hackerApplication.linkedinLink}</a>`
+      : 'Not Provided',
   };
 
   const formatObject = (obj: Record<string, string>): string[] => {
@@ -59,6 +68,7 @@ export default function FullProfile({ candidate }: { candidate: User }) {
         innerBackground={'bg-indigo-200 dark:bg-slate-700'}
         title={'Experience'}
         items={formatObject(experience)}
+        allowHTML={true}
       ></Box>
     </div>
   );
