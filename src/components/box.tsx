@@ -7,6 +7,7 @@ interface BoxProps {
   items?: string[];
   background?: string;
   innerBackground?: string;
+  allowHTML?: boolean;
 }
 
 const Box: FC<BoxProps> = ({
@@ -16,6 +17,7 @@ const Box: FC<BoxProps> = ({
   items = [],
   background = 'bg-primary dark:bg-slate-700',
   innerBackground = 'bg-primary-light dark:bg-slate-800',
+  allowHTML = false,
 }) => {
   return (
     <div
@@ -23,17 +25,18 @@ const Box: FC<BoxProps> = ({
     >
       {title && <h2 className="text-2xl font-bold mb-2">{title}</h2>}
       {items.length > 0 && (
-        <ul className="mt-4 space-y-2 text-left">
+        <div className={`rounded-2xl p-4 ${innerBackground}`}>
           {children}
           {items.map((item, index) => (
-            <li
+            <div
               key={index}
-              className={`${innerBackground} font-bold text-black dark:text-slate-400  p-2 pl-4 pr-4 rounded-xl`}
-            >
-              {item}
-            </li>
+              className="mb-2 text-black dark:text-white"
+              {...(allowHTML ?
+                { dangerouslySetInnerHTML: { __html: item } }
+              : { children: item })}
+            />
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
