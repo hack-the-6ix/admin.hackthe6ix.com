@@ -30,7 +30,7 @@ const Box: FC<BoxProps> = ({
           {items.map((item, index) => (
             <div
               key={index}
-              className="mb-2 text-black dark:text-white"
+              className="mb-2 text-black font-bold dark:text-white"
               {...(allowHTML ?
                 { dangerouslySetInnerHTML: { __html: item } }
               : { children: item })}
