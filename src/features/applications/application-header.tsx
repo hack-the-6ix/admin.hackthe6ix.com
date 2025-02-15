@@ -1,16 +1,16 @@
 import Button from '@/components/button';
-import React, { FC, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router';
+import React, { useState } from 'react';
+import { useSearchParams } from 'react-router';
 
-interface ButtonProps {
+const ApplicationHeader = ({
+  isRanked,
+  handleRanked,
+}: {
   isRanked: boolean;
   handleRanked: () => void;
-}
-
-const ApplicationHeader: FC<ButtonProps> = ({ isRanked, handleRanked }) => {
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSearch = () => {
     const params = new URLSearchParams(searchParams);
@@ -20,7 +20,7 @@ const ApplicationHeader: FC<ButtonProps> = ({ isRanked, handleRanked }) => {
     } else {
       params.delete('search');
     }
-    void navigate(`?${params.toString()}`);
+    setSearchParams(params);
   };
 
   return (
