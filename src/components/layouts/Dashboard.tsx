@@ -12,7 +12,9 @@ const pages = [
 
 export default function DashboardLayout() {
   const navigation = useNavigation();
-  const isNavigating = !!navigation.location;
+  const isPageChange =
+    !!navigation.location &&
+    navigation.location.pathname !== window.location.pathname;
 
   const [isDarkMode, setIsDarkMode] = useState(
     () => localStorage.getItem('theme') === 'dark',
@@ -40,7 +42,7 @@ export default function DashboardLayout() {
               className={({ isActive, isPending }) =>
                 `px-4 py-2 mx-2 rounded-md text-sm font-medium hover:bg-primary-extralight dark:hover:bg-slate-800 transition ${
                   (
-                    isNavigating ? isPending : isActive
+                    navigation.location ? isPending : isActive
                   ) ?
                     'bg-primary-light dark:bg-slate-700'
                   : ''
@@ -68,7 +70,7 @@ export default function DashboardLayout() {
         </div>
       </nav>
       <div className="dark:text-white bg-slate-200 dark:bg-slate-900 flex-grow overflow-y-auto">
-        {isNavigating ?
+        {isPageChange ?
           <PageLoader />
         : <Outlet />}
       </div>

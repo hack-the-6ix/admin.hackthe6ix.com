@@ -1,33 +1,16 @@
 import Button from '@/components/button';
-import React, { FC, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router';
-import ReviewModal from '@/components/review-modal';
+import React, { useState } from 'react';
+import { useSearchParams } from 'react-router';
 
-type SortOption = 'asc' | 'desc';
-
-interface ButtonProps {
+const ApplicationHeader = ({
+  isRanked,
+  handleRanked,
+}: {
   isRanked: boolean;
   handleRanked: () => void;
-}
-
-const ApplicationHeader: FC<ButtonProps> = ({ isRanked, handleRanked }) => {
-  const [advanced, setAdvanced] = useState(false);
-  const [sortFieldIndex, setSortFieldIndex] = useState(0);
-  const [sortField, setSortField] = useState('created');
-  const [sortCriteriaIndex, setSortCriteriaIndex] = useState(0);
-  const [sortCriteria, setSortCriteria] = useState<SortOption>('asc');
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [reviewModal, setReviewModal] = useState(false);
-  const sortCriteriaOptions: SortOption[] = ['asc', 'desc'];
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-
-  const sortFieldOptions: string[] = [
-    'created',
-    'firstName',
-    'lastName',
-    'hackerApplication.lastUpdated',
-  ];
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSearch = () => {
     const params = new URLSearchParams(searchParams);
@@ -37,11 +20,11 @@ const ApplicationHeader: FC<ButtonProps> = ({ isRanked, handleRanked }) => {
     } else {
       params.delete('search');
     }
-    void navigate(`?${params.toString()}`);
+    setSearchParams(params);
   };
 
   const toggleReviewModal = () => {
-    setReviewModal(!reviewModal);
+    // setReviewModal(!reviewModal);
   };
 
   return (
@@ -91,36 +74,6 @@ const ApplicationHeader: FC<ButtonProps> = ({ isRanked, handleRanked }) => {
             </svg>
             <span> Begin Review</span>
           </Button>
-          <Button
-            onClick={() => {
-              setAdvanced(!advanced);
-            }}
-            className="h-12  dark:bg-primary-dark dark:hover:bg-primary"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="size-5"
-            >
-              <path
-                fillRule="evenodd"
-                d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 8 18.25v-5.757a2.25 2.25 0 0 0-.659-1.591L2.659 6.22A2.25 2.25 0 0 1 2 4.629V2.34a.75.75 0 0 1 .628-.74Z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="ml-1"> Other Filter</span>
-          </Button>
-          <Button className="h-12  dark:bg-primary-dark dark:hover:bg-primary">
-            <svg
-              className="fill-current w-4 h-4 mr-2"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-            >
-              <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
-            </svg>
-            <span> Download CSV</span>
-          </Button>
         </div>
       </div>
       <div className="w-full pb-4">
@@ -132,11 +85,18 @@ const ApplicationHeader: FC<ButtonProps> = ({ isRanked, handleRanked }) => {
             onChange={(e) => {
               setSearchTerm(e.target.value);
             }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch();
+              }
+            }}
+            disabled={isRanked}
           />
           <button
             className="absolute top-1 right-1 flex items-center rounded-xl bg-primary dark:bg-primary-dark dark:hover:bg-primary py-1 px-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow focus:shadow-none active:bg-slate-700 hover:bg-primary-dark active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
             type="button"
             onClick={handleSearch}
+            disabled={isRanked}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -154,41 +114,6 @@ const ApplicationHeader: FC<ButtonProps> = ({ isRanked, handleRanked }) => {
           </button>
         </div>
       </div>
-      {advanced && (
-        <div>
-          <div className="space-x-2">
-            <label htmlFor="sortField">Sort Field</label>
-            <select id="sortField" value={sortFieldIndex}>
-              <option value="created">Created</option>
-              <option value="firstName">First Name</option>
-              <option value="lastName">Last Name</option>
-              <option value="hackerApplication.lastUpdated">
-                Last Updated
-              </option>
-            </select>
-          </div>
-          <div className="space-x-2">
-            <label htmlFor="sortCriteria">Sort Criteria</label>
-            <select
-              id="sortCriteria"
-              className="advancedQuery"
-              value={sortCriteriaIndex}
-              onChange={(e) => {
-                const index = Number(e.target.value);
-                setSortCriteriaIndex(index);
-                setSortCriteria(sortCriteriaOptions[index]);
-              }}
-            >
-              {sortCriteriaOptions.map((option, index) => (
-                <option key={option} value={index}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      )}
-      <ReviewModal isOpen={reviewModal} onClose={toggleReviewModal} />
     </div>
   );
 };
