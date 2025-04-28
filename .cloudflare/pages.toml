@@ -1,0 +1,7 @@
+[build]
+command = "npm run build"
+output_directory = "build"
+[site]
+bucket = "./build"
+[build.environment]
+NODE_VERSION = "20" 
