@@ -236,7 +236,7 @@ export async function getUser(
     }));
 
     body.filter = {
-      ...body.filter,
+      ...(body.filter as Record<string, unknown>),
       $and: regexConditions, // Combine all regex conditions
     };
   }

@@ -1,5 +1,5 @@
 import Button from '@/components/button';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 
 const ApplicationHeader = ({
