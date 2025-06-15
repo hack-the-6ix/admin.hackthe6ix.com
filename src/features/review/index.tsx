@@ -1,17 +1,24 @@
-import { useLocation } from 'react-router-dom';
-import { User } from '@/utils/ht6-api';
+/* eslint-disable @typescript-eslint/no-misused-promises */
+import { useLocation, useNavigate } from 'react-router';
+import {
+  User,
+  getCandidate,
+  gradeCandidate,
+  editObject,
+} from '@/utils/ht6-api';
 import {
   maxPerCategory,
   categoryNames,
   ratingScale,
   ratingColors,
+  APINames,
+  rateNames,
+  categoryQuestions,
 } from '@/utils/const';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import QuestionBox from '@/components/questionBox';
 import FullProfile from './fullProfile';
 import Profile from './profile';
-import { gradeCandidate } from '@/utils/ht6-api';
-import { useNavigate } from 'react-router-dom';
 
 interface ReviewPageState {
   candidate: User;
@@ -23,91 +30,319 @@ const ReviewPage = () => {
   const { candidate, category } = location.state as ReviewPageState;
   const [toggleProfile, setToggleProfile] = useState<boolean>(false);
   const [showName, setShowName] = useState<boolean>(false);
-  const [selectedRating, setSelectedRating] = useState<number>(3);
   const [notes, setNotes] = useState<string>('');
   const navigation = useNavigate();
+  const [showAlert, setShowAlert] = useState(false);
 
-  console.log(candidate);
-  const getCategory = (): string | undefined => {
-    const result = Object.entries(candidate.internal.applicationScores).find(
-      ([, data]) => data.score === -1,
-    );
-    let unreviewedCategory = result ? result[0] : 'project';
-    if (unreviewedCategory === 'portfolio') {
-      unreviewedCategory = 'portfolioLink';
-    }
-    if (unreviewedCategory === 'whyHT6') {
-      unreviewedCategory = 'whyHT6Essay';
-    }
-    if (unreviewedCategory === 'creativeResponse') {
-      unreviewedCategory = 'creativeResponseEssay';
-    }
-    return category == '' ? unreviewedCategory : category;
+  const parsedCategory = category;
+
+  //console.log(candidate);
+
+  // getGrade function to get the saved grade for the current category of the candidate given from the current user
+  const getGrade = (category: string) => {
+    const apiCategory =
+      category ? rateNames[category as keyof typeof rateNames] : undefined;
+    const score =
+      category &&
+      candidate.internal.applicationScores?.[
+        apiCategory as keyof typeof candidate.internal.applicationScores
+      ]?.score;
+    return typeof score === 'number' ? score - 1 : -5;
   };
 
-  const parsedCategory = getCategory();
-  const maxScore: number =
-    parsedCategory ?
-      maxPerCategory[parsedCategory as keyof typeof maxPerCategory]
-    : 4;
-
-  const getResponse = (): string => {
-    if (parsedCategory === 'creativeResponseEssay') {
+  // getResponse function gets the applicant's response for the current category/question
+  const getResponse = (category: string): string => {
+    if (category === 'creativeResponseEssay') {
       return (
         candidate.hackerApplication?.creativeResponseEssay ??
         'No response provided'
       );
-    } else if (parsedCategory === 'whyHT6Essay') {
+    } else if (category === 'whyHT6Essay') {
       return candidate.hackerApplication?.whyHT6Essay ?? 'No response provided';
-    } else if (parsedCategory === 'project') {
+    } else if (category === 'oneSentenceEssay') {
+      return (
+        candidate.hackerApplication?.oneSentenceEssay ?? 'No response provided'
+      );
+    } else if (category === 'portfolioLink') {
       let links = '';
       if (candidate.hackerApplication?.linkedinLink) {
-        links += `LinkedIn Link: ${candidate.hackerApplication.linkedinLink} `;
+        links += `LinkedIn Link\n${candidate.hackerApplication.linkedinLink}`;
       }
       if (candidate.hackerApplication?.githubLink) {
-        links += `GitHub Link: ${candidate.hackerApplication.githubLink}`;
+        if (links !== '') links += '\n';
+        links += `GitHub Link\n${candidate.hackerApplication.githubLink}`;
+      }
+
+      if (candidate.hackerApplication?.portfolioLink) {
+        if (links !== '') links += '\n';
+        links += `Portfolio Link\n${candidate.hackerApplication.portfolioLink}`;
       }
       return links || 'No Links Provided';
     }
-
-    return candidate.hackerApplication?.portfolioLink ?
-        `Portfolio Link: ${candidate.hackerApplication.portfolioLink}`
-      : 'No Portfolio Link Provided';
+    return '';
   };
 
+  // maxScore is the max score for the current category of the candidate given from the current user
+  const maxScore: Record<string, number> = {
+    creativeResponseEssay: maxPerCategory.creativeResponseEssay,
+    whyHT6Essay: maxPerCategory.whyHT6Essay,
+    oneSentenceEssay: maxPerCategory.oneSentenceEssay,
+    portfolioLink: maxPerCategory.portfolioLink,
+  };
+
+  // selectedRating is the rating for the current category of the candidate given from the current user
+  const [selectedRating, setSelectedRating] = useState<Record<string, number>>(
+    () => ({
+      creativeResponseEssay: getGrade('creativeResponseEssay'),
+      whyHT6Essay: getGrade('whyHT6Essay'),
+      oneSentenceEssay: getGrade('oneSentenceEssay'),
+      portfolioLink: getGrade('portfolioLink'),
+    }),
+  );
+  useEffect(() => {
+    setSelectedRating({
+      [parsedCategory]: getGrade(parsedCategory),
+    });
+  }, [candidate, parsedCategory]);
+
+  // submittedCategories is the categories help indicate which categories have been submitted at the moment
+  const [submittedCategories, setSubmittedCategories] = useState<
+    Record<string, boolean>
+  >({});
+
+  // SIMPLE FUNCTIONS
   const showProfile = () => {
     setToggleProfile(!toggleProfile);
-  };
-
-  const submitScores = async () => {
-    try {
-      await gradeCandidate(candidate._id, selectedRating.toString());
-      alert('Review submitted successfully!');
-      setToggleProfile(false);
-      setShowName(false);
-      setSelectedRating(3);
-      setNotes('');
-      void navigation('/apps');
-    } catch (error) {
-      console.error('Error submitting scores:', error);
-      alert('Error submitting review. Please try again.');
-    }
   };
 
   const showNameFunction = () => {
     setShowName(!showName);
   };
 
-  const handleRatingClick = (rating: number) => {
-    setSelectedRating(rating);
+  const handleRatingClick = (category: string, rating: number) => {
+    setSelectedRating((prev) => ({
+      ...prev,
+      [category]: rating,
+    }));
+  };
+
+  // THREE MAIN ACTION FUNCTIONS: SUBMIT SCORES, SUBMIT NOTES, GET NEXT CANDIDATE
+  const submitScores = async (category?: string) => {
+    try {
+      const scores: Record<string, number> = {};
+      if (category) {
+        const apiCategory = rateNames[category as keyof typeof rateNames];
+        scores[apiCategory] = selectedRating[category] + 1;
+        await gradeCandidate(candidate._id, scores);
+        setSubmittedCategories((prev) => ({
+          ...prev,
+          [category]: true,
+        }));
+      } else {
+        Object.entries(rateNames).forEach(([cat, rateName]) => {
+          if (selectedRating[cat] >= 0)
+            scores[rateName] = selectedRating[cat] + 1;
+          else scores[rateName] = 0;
+        });
+        await gradeCandidate(candidate._id, scores);
+        setSubmittedCategories(
+          Object.keys(rateNames).reduce<Record<string, boolean>>((acc, key) => {
+            if (selectedRating[key] >= 0) acc[key] = true;
+            else acc[key] = false;
+            return acc;
+          }, {}),
+        );
+      }
+
+      const updated = await getCandidate(false, category ?? '');
+      Object.assign(candidate, updated.message);
+
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1500);
+    } catch (error) {
+      console.error('Error submitting scores:', error);
+      alert('Error submitting review. Please try again.');
+    }
+  };
+
+  const submitNotes = async () => {
+    try {
+      await editObject(
+        'user',
+        {
+          _id: candidate._id,
+        },
+        {
+          internal: {
+            notes: notes || '',
+          },
+        },
+      );
+      alert('Notes submitted successfully!');
+    } catch (error: unknown) {
+      alert(
+        error instanceof Error ? error.message : 'An unknown error occurred',
+      );
+    }
+  };
+
+  const getNextApp = async () => {
+    try {
+      let result;
+      let attempts = 0;
+
+      do {
+        const apiCategory =
+          parsedCategory ?
+            APINames[parsedCategory as keyof typeof APINames]
+          : undefined;
+        result = await getCandidate(true, apiCategory);
+        attempts++;
+      } while (result.message._id === candidate._id && attempts < 5);
+
+      if (result.message._id && result.message._id !== candidate._id) {
+        void navigation('/review', {
+          state: { candidate: result.message, category: parsedCategory },
+        });
+        setToggleProfile(false);
+        setShowName(false);
+        setNotes('');
+        setShowAlert(false);
+        setSelectedRating(
+          Object.keys(rateNames).reduce<Record<string, number>>((acc, key) => {
+            acc[key] = getGrade(key);
+            return acc;
+          }, {}),
+        );
+        setSubmittedCategories(
+          Object.keys(rateNames).reduce<Record<string, boolean>>((acc, key) => {
+            acc[key] = false;
+            return acc;
+          }, {}),
+        );
+      } else {
+        alert('No new applicants available or repeated candidate.');
+      }
+    } catch (error: unknown) {
+      alert(
+        error instanceof Error ? error.message : 'An unknown error occurred',
+      );
+    }
+  };
+
+  // SumbittedIndicator is a component that displays an indicator when the user successful submitted scores
+  const SumbittedIndicator = () => (
+    <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-slate-50/80 dark:bg-slate-800 text-center py-2 px-4 rounded-lg shadow-md">
+      <span className="font-semibold text-primary dark:text-white">
+        Review submitted successfully!
+      </span>
+    </div>
+  );
+
+  // categorySection is a function that returns a div with a QuestionBox component (with user answer)
+  // and a Box component (with rating choices) for the current category
+  const categorySection = (category: string, bgColor?: string) => {
+    return (
+      <div>
+        {category !== 'portfolioLink' ?
+          <QuestionBox
+            className={`mb-8 ${bgColor ?? 'bg-primary dark:bg-slate-700'}`}
+            title={categoryNames[category as keyof typeof categoryNames]}
+            label={
+              categoryQuestions[category as keyof typeof categoryQuestions]
+            }
+            wordCount={getResponse(category).split(' ').length}
+          >
+            {getResponse(category)}
+          </QuestionBox>
+        : <QuestionBox
+            className={`mb-8 ${bgColor ?? 'bg-primary dark:bg-slate-700'}`}
+            title={categoryNames[category as keyof typeof categoryNames]}
+            label={
+              categoryQuestions[category as keyof typeof categoryQuestions]
+            }
+            wordCount={getResponse(category).split(' ').length}
+            items={getResponse(category)
+              .split('\n')
+              .filter((_, index) => index % 2 === 0)}
+            links={getResponse(category)
+              .split('\n')
+              .filter((_, index) => index % 2 === 1)}
+          >
+            Click on the above texts to view this applicants linkedin, github,
+            and portfolio
+          </QuestionBox>
+        }
+        <div
+          className={`${
+            bgColor ?? 'bg-primary dark:bg-slate-700'
+          } text-white p-4 mt-4 text-center rounded-2xl`}
+        >
+          <h2 className="text-2xl font-bold mb-2">
+            Rate {rateNames[category as keyof typeof rateNames]} response
+          </h2>
+          <div
+            className={`grid grid-cols-1 sm:grid-cols-3 gap-4 justify-center`}
+            style={{
+              gridTemplateColumns: `repeat(${(maxScore[category] + 1).toString()}, minmax(0, 1fr))`,
+            }}
+          >
+            {Array.from({ length: maxScore[category] + 1 }, (_, i) => (
+              <div
+                key={i}
+                onClick={() => {
+                  handleRatingClick(category, i);
+                }}
+                className={`text-4xl cursor-pointer rounded-lg pt-4 pb-4 
+                ${
+                  selectedRating[category] === i ?
+                    'dark:bg-primary-dark text-black font-bold'
+                  : 'bg-primary-light dark:bg-slate-600 hover:bg-primary-dark hover:dark:bg-slate-800'
+                }`}
+                style={{
+                  backgroundColor:
+                    selectedRating[category] === i ?
+                      ratingColors[i]
+                    : undefined,
+                }}
+              >
+                <div className="text-4xl">{ratingScale[i]}</div>
+                <div className="text-sm mt-2 text-black dark:text-white">
+                  {i + 1}
+                </div>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => submitScores(category)}
+            className={`mt-4 p-2 pl-4 pr-4 rounded-2xl text-white
+                    ${
+                      submittedCategories[category] ?
+                        'bg-green-600 dark:bg-green-700'
+                      : 'bg-amber-500 hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark'
+                    }`}
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
     <div className="p-4 m-3">
+      {showAlert && <SumbittedIndicator />}
       <div className="m-4 text-left">
         <h1 className="text-5xl font-bold text-primary">Review Candidate</h1>
         <p className="text-xl font-bold text-slate-500">
-          Give this question a score from 0 to <span>{maxScore}</span>
+          {parsedCategory !== '' ?
+            <>
+              Give this question a score from 1 to{' '}
+              <span>{maxScore[parsedCategory] + 1}</span>
+            </>
+          : <> Score each questions</>}
         </p>
       </div>
       <button
@@ -129,16 +364,20 @@ const ReviewPage = () => {
           <FullProfile candidate={candidate} />
         : <Profile candidate={candidate} />
       : null}
+
       <div className="p-4">
-        <QuestionBox
-          className="mb-8"
-          title={categoryNames[parsedCategory]}
-          wordCount={getResponse().split(' ').length}
-        >
-          {getResponse()}
-        </QuestionBox>
+        {parsedCategory !== '' ?
+          <div>{categorySection(parsedCategory)}</div>
+        : <div className="gap-10 flex flex-col">
+            {categorySection('creativeResponseEssay')}
+            {categorySection('whyHT6Essay', 'bg-sky-700 dark:bg-sky-900')}
+            {categorySection('oneSentenceEssay')}
+            {categorySection('portfolioLink', 'bg-sky-700 dark:bg-sky-900')}
+          </div>
+        }
+
         <div
-          className={`bg-primary dark:bg-slate-700 text-white p-4 mt-4 mb-8 text-center rounded-2xl`}
+          className={`bg-primary dark:bg-slate-700 text-white p-4 mt-8 mb-8 text-center rounded-2xl`}
         >
           <h2 className="text-2xl font-bold mb-2">Add Notes (Optional)</h2>
           <textarea
@@ -149,46 +388,39 @@ const ReviewPage = () => {
             placeholder="Write your notes here..."
             className="w-full h-24 p-4 rounded-xl bg-primary-light text-black dark:text-white dark:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-dark dark:focus:ring-slate-800 placeholder:text-slate-600 dark:placeholder:text-slate-400"
           />
-        </div>
-        <div
-          className={`bg-primary dark:bg-slate-700 text-white p-4 mt-4 text-center rounded-2xl`}
-        >
-          <h2 className="text-2xl font-bold mb-2">Rate this response</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {Array.from({ length: maxScore + 1 }, (_, i) => (
-              <div
-                key={i}
-                onClick={() => {
-                  handleRatingClick(i);
-                }}
-                className={`text-4xl cursor-pointer rounded-lg pt-4 pb-4 
-                ${
-                  selectedRating === i ?
-                    'dark:bg-primary-dark text-black font-bold'
-                  : 'bg-primary-light dark:bg-slate-600 hover:bg-primary-dark hover:dark:bg-slate-800'
-                }`}
-                style={{
-                  backgroundColor:
-                    selectedRating === i ? ratingColors[i] : undefined,
-                }}
-              >
-                <div className="text-4xl">{ratingScale[i]}</div>
-                <div className="text-sm mt-2 text-black dark:text-white">
-                  {i}
-                </div>
-              </div>
-            ))}
-          </div>
           <button
-            onClick={submitScores}
+            onClick={() => void submitNotes()}
             className="mt-4 p-2 pl-4 pr-4 bg-amber-500 rounded-2xl text-white hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark"
           >
             Submit
+          </button>
+          {candidate.internal.notes !== '' ?
+            <div>
+              <h2 className="mt-5 text-2xl font-bold mb-2">Past Notes</h2>{' '}
+              <p className="font-bold text-black dark:text-slate-400 bg-primary-light dark:bg-slate-800 p-2 pl-4 pr-4 rounded-xl">
+                {candidate.internal.notes}
+              </p>
+            </div>
+          : null}
+        </div>
+        <div className="flex justify-end gap-3">
+          {category === '' && (
+            <button
+              onClick={() => void submitScores()}
+              className="mt-4 p-2 pl-4 pr-4 bg-amber-500 rounded-2xl text-white hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark"
+            >
+              Submit All Scores
+            </button>
+          )}
+          <button
+            onClick={() => void getNextApp()}
+            className="mt-4 p-2 pl-4 pr-4 bg-amber-500 rounded-2xl text-white hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark"
+          >
+            View Next Applicant
           </button>
         </div>
       </div>
     </div>
   );
 };
-
 export default ReviewPage;

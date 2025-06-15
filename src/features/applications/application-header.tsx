@@ -1,9 +1,7 @@
 import Button from '@/components/button';
-import React, { FC, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router';
+import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import ReviewModal from '@/components/review-modal';
-
-type SortOption = 'asc' | 'desc';
 
 const ApplicationHeader = ({
   isRanked,
@@ -12,7 +10,6 @@ const ApplicationHeader = ({
   isRanked: boolean;
   handleRanked: () => void;
 }) => {
-  const [sortCriteriaIndex, setSortCriteriaIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [reviewModal, setReviewModal] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();

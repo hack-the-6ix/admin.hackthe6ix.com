@@ -120,6 +120,7 @@ export interface User {
     mlhCOC?: boolean;
     mlhEmail?: boolean;
     mlhData?: boolean;
+    oneSentenceEssay?: string;
   };
   internal: {
     notes?: string;
@@ -223,15 +224,23 @@ export const getCandidate = async (
   );
 };
 
-export const gradeCandidate = async (candidateID: string, grade: string) => {
-  return fetchHt6Api<User, never>(`/api/action/gradeCandidate`, {
-    method: 'POST',
-    searchParams: new URLSearchParams({
-      candidateID: candidateID,
-      grade: grade,
-    }),
-  });
-};
+export async function gradeCandidate(
+  candidateID: string,
+  grade: Record<string, number>,
+) {
+  const body: Record<string, unknown> = {
+    candidateID,
+    grade,
+  };
+
+  return fetchHt6Api<string, Record<string, unknown>>(
+    'api/action/gradeCandidate',
+    {
+      payload: body,
+      method: 'POST',
+    },
+  );
+}
 
 export async function getUser(
   page = 1,
@@ -269,6 +278,25 @@ export async function getUser(
     method: 'POST',
   });
 }
+
+export async function editObject(
+  object: string,
+  filter: Record<string, unknown>,
+  changes: Record<string, unknown>,
+  noFlatten?: boolean,
+) {
+  if (noFlatten === undefined) noFlatten = false;
+  const body: Record<string, unknown> = {
+    filter,
+    changes,
+    noFlatten,
+  };
+  return fetchHt6Api<string[], Record<string, unknown>>(`/api/edit/${object}`, {
+    payload: body,
+    method: 'POST',
+  });
+}
+
 export async function getRankedUser() {
   return fetchHt6Api<UsersResponse, Record<string, unknown>>(
     '/api/action/getRanks',
