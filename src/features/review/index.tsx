@@ -6,6 +6,7 @@ import {
   gradeCandidate,
   editObject,
   getUser,
+  getDownloadURL,
 } from '@/utils/ht6-api';
 import {
   maxPerCategory,
@@ -230,10 +231,18 @@ const ReviewPage = () => {
         result = await getCandidate(true, apiCategory);
         attempts++;
       } while (result.message._id === candidate._id && attempts < 5);
+      const downloadURL = await getDownloadURL(
+        'resumes',
+        result.message.hackerApplication?.resumeFileName ?? 'null',
+      );
 
       if (result.message._id && result.message._id !== candidate._id) {
         void navigation('/review', {
-          state: { candidate: result.message, category: parsedCategory },
+          state: {
+            candidate: result.message,
+            category: parsedCategory,
+            resumeLink: downloadURL.message,
+          },
         });
         setToggleProfile(false);
         setShowName(false);
