@@ -24,7 +24,7 @@ export const categoryQuestions = {
 
 export const APINames = {
   creativeResponseEssay: 'longEssay',
-  whyHT6Essay: 'whyHT6',
+  whyHT6Essay: 'shortEssay',
   oneSentenceEssay: 'oneSentenceEssay',
   portfolioLink: 'portfolio',
 };
