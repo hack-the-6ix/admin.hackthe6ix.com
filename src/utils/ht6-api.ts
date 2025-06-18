@@ -120,6 +120,7 @@ export interface User {
     mlhCOC?: boolean;
     mlhEmail?: boolean;
     mlhData?: boolean;
+    oneSentenceEssay?: string;
   };
   internal: {
     notes?: string;
@@ -210,6 +211,37 @@ export const getStatistics = async (update: boolean) => {
   });
 };
 
+export const getCandidate = async (
+  update: boolean,
+  category: string | undefined,
+) => {
+  return fetchHt6Api<User, never>(
+    `/api/action/getCandidate${category ? '?category=' + category : ''}`,
+    {
+      method: 'GET',
+      searchParams: new URLSearchParams({ update: update ? 'true' : 'false' }),
+    },
+  );
+};
+
+export async function gradeCandidate(
+  candidateID: string,
+  grade: Record<string, number>,
+) {
+  const body: Record<string, unknown> = {
+    candidateID,
+    grade,
+  };
+
+  return fetchHt6Api<string, Record<string, unknown>>(
+    'api/action/gradeCandidate',
+    {
+      payload: body,
+      method: 'POST',
+    },
+  );
+}
+
 export async function getUser(
   page = 1,
   size = 30,
@@ -246,6 +278,25 @@ export async function getUser(
     method: 'POST',
   });
 }
+
+export async function editObject(
+  object: string,
+  filter: Record<string, unknown>,
+  changes: Record<string, unknown>,
+  noFlatten?: boolean,
+) {
+  if (noFlatten === undefined) noFlatten = false;
+  const body: Record<string, unknown> = {
+    filter,
+    changes,
+    noFlatten,
+  };
+  return fetchHt6Api<string[], Record<string, unknown>>(`/api/edit/${object}`, {
+    payload: body,
+    method: 'POST',
+  });
+}
+
 export async function getRankedUser() {
   return fetchHt6Api<UsersResponse, Record<string, unknown>>(
     '/api/action/getRanks',
@@ -254,3 +305,13 @@ export async function getRankedUser() {
     },
   );
 }
+
+export const getFileURL = async (filename: string) => {
+  return fetchHt6Api<User, never>(`/api/gridfs`, {
+    method: 'GET-FILE',
+    searchParams: new URLSearchParams({
+      filename: filename,
+      bucket: 'resumes',
+    }),
+  });
+};

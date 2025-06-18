@@ -1,6 +1,7 @@
 import Button from '@/components/button';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
+import ReviewModal from '@/components/review-modal';
 
 const ApplicationHeader = ({
   isRanked,
@@ -10,6 +11,7 @@ const ApplicationHeader = ({
   handleRanked: () => void;
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [reviewModal, setReviewModal] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSearch = () => {
@@ -23,6 +25,10 @@ const ApplicationHeader = ({
     setSearchParams(params);
   };
 
+  const toggleReviewModal = () => {
+    setReviewModal(!reviewModal);
+  };
+
   return (
     <div className="flex flex-col">
       <div className="flex flex-row items-center flex-wrap mb-3">
@@ -33,7 +39,10 @@ const ApplicationHeader = ({
           </p>
         </div>
         <div className="flex md:flex md:flex-grow flex-row justify-end space-x-3 flex-wrap">
-          <Button className="h-12" onClick={handleRanked}>
+          <Button
+            className="h-12 dark:bg-primary-dark dark:hover:bg-primary"
+            onClick={handleRanked}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
@@ -49,7 +58,10 @@ const ApplicationHeader = ({
             </svg>
             <span>{isRanked ? 'View No Rank' : 'View Final Rank'}</span>
           </Button>
-          <Button className="h-12  dark:bg-primary-dark dark:hover:bg-primary">
+          <Button
+            className="h-12  dark:bg-primary-dark dark:hover:bg-primary"
+            onClick={toggleReviewModal}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -104,6 +116,7 @@ const ApplicationHeader = ({
           </button>
         </div>
       </div>
+      <ReviewModal isOpen={reviewModal} onClose={toggleReviewModal} />
     </div>
   );
 };
