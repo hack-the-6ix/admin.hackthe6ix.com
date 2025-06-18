@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { categoryNames, APINames } from '@/utils/const';
-import { getCandidate } from '@/utils/ht6-api';
+import { getCandidate, getDownloadURL } from '@/utils/ht6-api';
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -19,10 +19,18 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
         );
 
       const result = await getCandidate(true, processedCategory);
+      const downloadURL = await getDownloadURL(
+        'resumes',
+        result.message.hackerApplication?.resumeFileName ?? 'null',
+      );
 
       if (result.message._id) {
         void navigation('/review', {
-          state: { candidate: result.message, category: selectedCategory },
+          state: {
+            candidate: result.message,
+            category: selectedCategory,
+            resumeLink: downloadURL.message,
+          },
         });
       } else {
         alert('Error, request failed');

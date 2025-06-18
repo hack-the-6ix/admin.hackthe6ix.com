@@ -1,8 +1,15 @@
+export const categories = [
+  'creativeResponseEssay',
+  'whyHT6Essay',
+  'oneSentenceEssay',
+  'portfolioLink',
+];
+
 export const maxPerCategory = {
-  creativeResponseEssay: 5,
-  whyHT6Essay: 3,
-  oneSentenceEssay: 2,
-  portfolioLink: 5,
+  creativeResponseEssay: 6,
+  whyHT6Essay: 5,
+  oneSentenceEssay: 3,
+  portfolioLink: 6,
 };
 
 export const categoryNames = {
@@ -16,7 +23,7 @@ export const categoryQuestions = {
   creativeResponseEssay:
     'Tell us about a project you’ve enjoyed working on (this can be non-technical!). What made you decide to work on this project? What challenges did you face and how did you overcome them?',
   whyHT6Essay:
-    'If you could not do anything related to school, work, or coding for 4 months, what would you do and why?* (/4)',
+    'If you could not do anything related to school, work, or coding for 4 months, what would you do and why?*',
   oneSentenceEssay:
     'You are given an elephant. You cannot sell or give away the elephant. What do you do with the elephant?',
   portfolioLink: '',
@@ -36,7 +43,7 @@ export const rateNames = {
   portfolioLink: 'portfolio',
 };
 
-export const ratingScale = ['🤬', '😐', '🙂', '😁', '😍', '💯'];
+export const ratingScale = ['🤬', '😐', '🙂', '😁', '🥰', '😍', '💯'];
 export const ratingColors = [
   '#c41000',
   '#de7d0d',
@@ -44,4 +51,5 @@ export const ratingColors = [
   '#87de1d',
   '#00d60b',
   '#009f08',
+  '#0b8511',
 ];

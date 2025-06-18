@@ -1,7 +1,14 @@
 import { User } from '@/utils/ht6-api';
 import Box from '@/components/box';
 
-export default function FullProfile({ candidate }: { candidate: User }) {
+export default function FullProfile({
+  candidate,
+  resumeLink,
+}: {
+  candidate: User;
+  resumeLink: string;
+}) {
+  console.log(resumeLink);
   const personalInfo = {
     Name: candidate.fullName,
     Gender: candidate.hackerApplication?.gender ?? 'Not Provided',
@@ -29,19 +36,28 @@ export default function FullProfile({ candidate }: { candidate: User }) {
 
   const experience = {
     Hackathons:
-      candidate.hackerApplication?.hackathonsAttended ?? 'Not Provided',
-    Resume: candidate.hackerApplication?.resumeFileName ?? 'Not Provided',
+      candidate.hackerApplication?.hackathonsAttended ?
+        `<span class="font-normal">${candidate.hackerApplication.hackathonsAttended}</span>`
+      : 'Not Provided',
+    Resume:
+      candidate.hackerApplication?.friendlyResumeFileName ?
+        `<a href="${resumeLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline font-normal
+">${candidate.hackerApplication.friendlyResumeFileName}</a>`
+      : 'Not Provided',
     GitHub:
       candidate.hackerApplication?.githubLink ?
-        `<a href="${candidate.hackerApplication.githubLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">${candidate.hackerApplication.githubLink}</a>`
+        `<a href="${candidate.hackerApplication.githubLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline font-normal
+">${candidate.hackerApplication.githubLink}</a>`
       : 'Not Provided',
     Portfolio:
       candidate.hackerApplication?.portfolioLink ?
-        `<a href="${candidate.hackerApplication.portfolioLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">${candidate.hackerApplication.portfolioLink}</a>`
+        `<a href="${candidate.hackerApplication.portfolioLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline font-normal
+">${candidate.hackerApplication.portfolioLink}</a>`
       : 'Not Provided',
     LinkedIn:
       candidate.hackerApplication?.linkedinLink ?
-        `<a href="${candidate.hackerApplication.linkedinLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline">${candidate.hackerApplication.linkedinLink}</a>`
+        `<a href="${candidate.hackerApplication.linkedinLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline font-normal
+">${candidate.hackerApplication.linkedinLink}</a>`
       : 'Not Provided',
   };
 

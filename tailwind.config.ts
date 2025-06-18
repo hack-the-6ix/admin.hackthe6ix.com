@@ -12,6 +12,7 @@ export default {
         primary: {
           light: '#b2dbda',
           extralight: '#cce8e7',
+          medlight: '#69bfbb',
           DEFAULT: '#23B5AF',
           dark: '#1d615e',
         },

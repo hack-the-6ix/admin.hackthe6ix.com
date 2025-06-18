@@ -27,15 +27,28 @@ const Box: FC<BoxProps> = ({
       {items.length > 0 && (
         <div className={`rounded-2xl p-4 ${innerBackground}`}>
           {children}
-          {items.map((item, index) => (
-            <div
-              key={index}
-              className="mb-2 text-black font-bold dark:text-white"
-              {...(allowHTML ?
-                { dangerouslySetInnerHTML: { __html: item } }
-              : { children: item })}
-            />
-          ))}
+          {allowHTML ?
+            items.map((item, index) => (
+              <div
+                key={index}
+                className="mb-2 text-black font-bold dark:text-white"
+                dangerouslySetInnerHTML={{ __html: item }}
+              />
+            ))
+          : items.map((item, index) => {
+              const match = /^(.+?):\s*(.+)$/.exec(item);
+              return match ?
+                  <div key={index} className="mb-2 text-black dark:text-white">
+                    <span className="font-bold">{match[1]}</span>: {match[2]}
+                  </div>
+                : <div
+                    key={index}
+                    className="mb-2 text-black font-bold dark:text-white"
+                  >
+                    {item}
+                  </div>;
+            })
+          }
         </div>
       )}
     </div>
