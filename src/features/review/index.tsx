@@ -5,6 +5,7 @@ import {
   getCandidate,
   gradeCandidate,
   editObject,
+  getUser,
 } from '@/utils/ht6-api';
 import {
   maxPerCategory,
@@ -14,11 +15,14 @@ import {
   APINames,
   rateNames,
   categoryQuestions,
+  categories,
 } from '@/utils/const';
 import { useState, useEffect } from 'react';
 import QuestionBox from '@/components/questionBox';
 import FullProfile from './fullProfile';
 import Profile from './profile';
+import AlertPopup from '@/components/alert-popup';
+import HelpPower from './helpPower';
 
 interface ReviewPageState {
   candidate: User;
@@ -34,11 +38,18 @@ const ReviewPage = () => {
   const [notes, setNotes] = useState<string>('');
   const navigation = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
+  const [showAlertMessage, setShowAlertMessage] = useState('');
+
+  const [powerMode, setPowerMode] = useState(false);
+  const [powerModeCategory, setPowerModeCategory] = useState<string>('');
+  const [powerModeCatIndex, setPowerModeCatIndex] = useState<number>(0);
+  const [showPowerHelp, setShowPowerHelp] = useState(false);
 
   const parsedCategory = category;
 
-  //console.log(candidate);
+  console.log(candidate);
 
+  // GETTERS AND SETTERS ------------------------------------------------------------
   // getGrade function to get the saved grade for the current category of the candidate given from the current user
   const getGrade = (category: string) => {
     const apiCategory =
@@ -88,6 +99,8 @@ const ReviewPage = () => {
     return '';
   };
 
+  console.log(resumeLink);
+
   // maxScore is the max score for the current category of the candidate given from the current user
   const maxScore: Record<string, number> = {
     creativeResponseEssay: maxPerCategory.creativeResponseEssay,
@@ -116,13 +129,23 @@ const ReviewPage = () => {
     Record<string, boolean>
   >({});
 
-  // SIMPLE FUNCTIONS
+  // SIMPLE FUNCTIONS --------------------------------------------------------------
   const showProfile = () => {
     setToggleProfile(!toggleProfile);
   };
 
   const showNameFunction = () => {
     setShowName(!showName);
+  };
+
+  const powerModeAction = () => {
+    setPowerMode(!powerMode);
+    if (category === '') {
+      setPowerModeCategory('creativeResponseEssay');
+    } else {
+      setPowerModeCategory(category);
+      setPowerModeCatIndex(0);
+    }
   };
 
   const handleRatingClick = (category: string, rating: number) => {
@@ -132,13 +155,13 @@ const ReviewPage = () => {
     }));
   };
 
-  // THREE MAIN ACTION FUNCTIONS: SUBMIT SCORES, SUBMIT NOTES, GET NEXT CANDIDATE
+  // THREE MAIN ACTION FUNCTIONS: SUBMIT SCORES, SUBMIT NOTES, GET NEXT CANDIDATE --------------------------
   const submitScores = async (category?: string) => {
     try {
       const scores: Record<string, number> = {};
       if (category) {
         const apiCategory = rateNames[category as keyof typeof rateNames];
-        scores[apiCategory] = selectedRating[category] + 1;
+        scores[apiCategory] = selectedRating[category];
         await gradeCandidate(candidate._id, scores);
         setSubmittedCategories((prev) => ({
           ...prev,
@@ -146,13 +169,12 @@ const ReviewPage = () => {
         }));
       } else {
         Object.entries(rateNames).forEach(([cat, rateName]) => {
-          if (selectedRating[cat] >= 0)
-            scores[rateName] = selectedRating[cat] + 1;
+          if (selectedRating[cat] >= 0) scores[rateName] = selectedRating[cat];
           else scores[rateName] = 0;
         });
         await gradeCandidate(candidate._id, scores);
         setSubmittedCategories(
-          Object.keys(rateNames).reduce<Record<string, boolean>>((acc, key) => {
+          categories.reduce<Record<string, boolean>>((acc, key) => {
             if (selectedRating[key] >= 0) acc[key] = true;
             else acc[key] = false;
             return acc;
@@ -160,9 +182,12 @@ const ReviewPage = () => {
         );
       }
 
-      const updated = await getCandidate(false, category ?? '');
-      Object.assign(candidate, updated.message);
+      const updated = await getUser(1, 2, 'asc', '', '', {
+        _id: candidate._id,
+      });
+      Object.assign(candidate, updated.message[0]);
 
+      setShowAlertMessage('Review submitted successfully!');
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
@@ -217,17 +242,23 @@ const ReviewPage = () => {
         setNotes('');
         setShowAlert(false);
         setSelectedRating(
-          Object.keys(rateNames).reduce<Record<string, number>>((acc, key) => {
+          categories.reduce<Record<string, number>>((acc, key) => {
             acc[key] = getGrade(key);
             return acc;
           }, {}),
         );
         setSubmittedCategories(
-          Object.keys(rateNames).reduce<Record<string, boolean>>((acc, key) => {
+          categories.reduce<Record<string, boolean>>((acc, key) => {
             acc[key] = false;
             return acc;
           }, {}),
         );
+        document.querySelector('#top')?.scrollIntoView({ behavior: 'smooth' });
+        setShowAlertMessage('Next applicant loaded :]');
+        setShowAlert(true);
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 2000);
       } else {
         alert('No new applicants available or repeated candidate.');
       }
@@ -238,14 +269,60 @@ const ReviewPage = () => {
     }
   };
 
-  // SumbittedIndicator is a component that displays an indicator when the user successful submitted scores
-  const SumbittedIndicator = () => (
-    <div className="absolute top-10 left-1/2 -translate-x-1/2 bg-slate-50/80 dark:bg-slate-800 text-center py-2 px-4 rounded-lg shadow-md">
-      <span className="font-semibold text-primary dark:text-white">
-        Review submitted successfully!
-      </span>
-    </div>
-  );
+  // POWER MODE TOGGLES ------------------------------------------------------------
+  useEffect(() => {
+    if (!powerMode) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') {
+        handleRatingClick(powerModeCategory, Number(e.key));
+      } else if (e.key === 'a' || e.key === 'A') {
+        if (category === '') {
+          submitScores().catch(() => {
+            console.error('Error submitting scores');
+            alert('Error submitting review. Please try again.');
+          });
+        } else {
+          submitScores(powerModeCategory).catch(() => {
+            console.error('Error submitting scores');
+            alert('Error submitting review. Please try again.');
+          });
+        }
+      } else if (e.key === 'Escape') {
+        setPowerMode(false);
+      } else if ((e.key === 's' || e.key === 'S') && category === '') {
+        const nextIndex = (powerModeCatIndex + 1) % categories.length;
+        const nextCategory = categories[nextIndex];
+
+        setPowerModeCatIndex(nextIndex);
+        setPowerModeCategory(nextCategory);
+        document
+          .querySelector(`#rate-${nextCategory}`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if ((e.key === 'w' || e.key === 'W') && category === '') {
+        const nextIndex =
+          (powerModeCatIndex - 1 + categories.length) % categories.length;
+        const nextCategory = categories[nextIndex];
+
+        setPowerModeCatIndex(nextIndex);
+        setPowerModeCategory(nextCategory);
+        document
+          .querySelector(`#rate-${nextCategory}`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (e.key === 'd' || e.key === 'D') {
+        getNextApp().catch(() => {
+          console.error('Error getting next applicant');
+          alert('Error getting next applicant. Please try again.');
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [powerMode, category, powerModeCatIndex, powerModeCategory, submitScores]);
+
+  // COMPONENTS --------------------------------------------------------------------
 
   // categorySection is a function that returns a div with a QuestionBox component (with user answer)
   // and a Box component (with rating choices) for the current category
@@ -285,6 +362,14 @@ const ReviewPage = () => {
           className={`${
             bgColor ?? 'bg-primary dark:bg-slate-700'
           } text-white p-4 mt-4 text-center rounded-2xl`}
+          style={{
+            border:
+              powerMode && powerModeCategory == category ?
+                '4px solid #FFFF00'
+              : 'none',
+            outlineOffset: 5,
+          }}
+          id={`rate-${category}`}
         >
           <h2 className="text-2xl font-bold mb-2">
             Rate {rateNames[category as keyof typeof rateNames]} response
@@ -316,7 +401,7 @@ const ReviewPage = () => {
               >
                 <div className="text-4xl">{ratingScale[i]}</div>
                 <div className="text-sm mt-2 text-black dark:text-white">
-                  {i + 1}
+                  {i}
                 </div>
               </div>
             ))}
@@ -338,19 +423,41 @@ const ReviewPage = () => {
   };
 
   return (
-    <div className="p-4 m-3">
-      {showAlert && <SumbittedIndicator />}
+    <div className="p-4 m-3" id="top">
+      {showAlert && <AlertPopup message={showAlertMessage} />}
+      {showPowerHelp && (
+        <HelpPower
+          onClose={() => {
+            setShowPowerHelp(false);
+          }}
+        />
+      )}
       <div className="m-4 text-left">
         <h1 className="text-5xl font-bold text-primary">Review Candidate</h1>
         <p className="text-xl font-bold text-slate-500">
           {parsedCategory !== '' ?
             <>
-              Give this question a score from 1 to{' '}
+              Give this question a score from 0 to{' '}
               <span>{maxScore[parsedCategory] + 1}</span>
             </>
           : <> Score each questions</>}
         </p>
       </div>
+      <button
+        onClick={powerModeAction}
+        className="ml-4 mr-1 p-2 pl-4 pr-4 bg-amber-500 rounded-2xl text-white hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark"
+      >
+        {powerMode ? 'Power Mode Off' : 'Power Mode On'}
+      </button>
+      <button
+        onClick={() => {
+          setShowPowerHelp(true);
+        }}
+        className="z-50 w-5 text-[0.7rem] font-bold aspect-square text-amber-500 border-2 border-amber-500 rounded-full items-center justify-center hover:border-amber-600 hover:text-amber-600"
+        style={{ position: 'relative', top: '-14px' }}
+      >
+        i
+      </button>
       <button
         onClick={showProfile}
         className="m-4 p-2 pl-4 pr-4 bg-amber-500 rounded-2xl text-white hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark"
