@@ -7,7 +7,7 @@ export const categories = [
 
 export const maxPerCategory = {
   creativeResponseEssay: 6,
-  whyHT6Essay: 5,
+  whyHT6Essay: 4,
   oneSentenceEssay: 3,
   portfolioLink: 6,
 };
