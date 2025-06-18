@@ -47,7 +47,7 @@ const ReviewPage = () => {
 
   const parsedCategory = category;
 
-  console.log(candidate);
+  //console.log(candidate);
 
   // GETTERS AND SETTERS ------------------------------------------------------------
   // getGrade function to get the saved grade for the current category of the candidate given from the current user
@@ -98,8 +98,6 @@ const ReviewPage = () => {
     }
     return '';
   };
-
-  console.log(resumeLink);
 
   // maxScore is the max score for the current category of the candidate given from the current user
   const maxScore: Record<string, number> = {
