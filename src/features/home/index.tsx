@@ -1,7 +1,10 @@
-import type { Info } from './+types';
 import Box from '../../components/box';
 import LeaderBoard from './leaderboard';
-import { getStatistics } from '../../utils/ht6-api';
+import {
+  getStatistics,
+  loaderAuthCheck,
+  StatisticsResponse,
+} from '../../utils/ht6-api';
 import { useLoaderData } from 'react-router';
 import PieChart from '../../components/piechart';
 
@@ -21,13 +24,13 @@ const formatEntries = (
     formatKeyValue(key, value, total),
   );
 
-export async function clientLoader() {
+export const clientLoader = loaderAuthCheck(async () => {
   const data = await getStatistics(true);
   return data.message;
-}
+});
 
 export default function Home() {
-  const data = useLoaderData<Info['loaderData']>();
+  const data = useLoaderData<StatisticsResponse>();
 
   const downloadJSON = () => {
     const jsonData = JSON.stringify(data, null, 2);
