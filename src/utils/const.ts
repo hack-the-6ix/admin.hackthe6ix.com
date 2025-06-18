@@ -23,7 +23,7 @@ export const categoryQuestions = {
 };
 
 export const APINames = {
-  creativeResponseEssay: 'creativeResponse',
+  creativeResponseEssay: 'longEssay',
   whyHT6Essay: 'whyHT6',
   oneSentenceEssay: 'oneSentenceEssay',
   portfolioLink: 'portfolio',
