@@ -16,7 +16,7 @@ export const categoryQuestions = {
   creativeResponseEssay:
     'Tell us about a project you’ve enjoyed working on (this can be non-technical!). What made you decide to work on this project? What challenges did you face and how did you overcome them?',
   whyHT6Essay:
-    'If you could not do anything related to school, work, or coding for 4 months, what would you do and why?* (/4)',
+    'If you could not do anything related to school, work, or coding for 4 months, what would you do and why?*',
   oneSentenceEssay:
     'You are given an elephant. You cannot sell or give away the elephant. What do you do with the elephant?',
   portfolioLink: '',

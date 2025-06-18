@@ -315,3 +315,20 @@ export const getFileURL = async (filename: string) => {
     }),
   });
 };
+
+export const getDownloadURL = async (
+  container: string,
+  blobName: string,
+  expiresInMinutes?: number,
+) => {
+  const params = new URLSearchParams({ container, blobName });
+  if (expiresInMinutes)
+    params.append('expiresInMinutes', expiresInMinutes.toString());
+
+  return fetchHt6Api<string, never>(
+    `/api/blob/download-url?${params.toString()}`,
+    {
+      method: 'GET',
+    },
+  );
+};

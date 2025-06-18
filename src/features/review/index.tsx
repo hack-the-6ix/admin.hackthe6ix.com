@@ -23,11 +23,12 @@ import Profile from './profile';
 interface ReviewPageState {
   candidate: User;
   category: string;
+  resumeLink: string;
 }
 
 const ReviewPage = () => {
   const location = useLocation();
-  const { candidate, category } = location.state as ReviewPageState;
+  const { candidate, category, resumeLink } = location.state as ReviewPageState;
   const [toggleProfile, setToggleProfile] = useState<boolean>(false);
   const [showName, setShowName] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>('');
@@ -76,6 +77,11 @@ const ReviewPage = () => {
       if (candidate.hackerApplication?.portfolioLink) {
         if (links !== '') links += '\n';
         links += `Portfolio Link\n${candidate.hackerApplication.portfolioLink}`;
+      }
+
+      if (candidate.hackerApplication?.resumeFileName) {
+        if (links !== '') links += '\n';
+        links += `Resume Link\n${resumeLink}`;
       }
       return links || 'No Links Provided';
     }
@@ -361,7 +367,7 @@ const ReviewPage = () => {
       : null}
       {toggleProfile ?
         showName ?
-          <FullProfile candidate={candidate} />
+          <FullProfile candidate={candidate} resumeLink={resumeLink} />
         : <Profile candidate={candidate} />
       : null}
 
