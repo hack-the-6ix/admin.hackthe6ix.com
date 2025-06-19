@@ -33,7 +33,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
           },
         });
       } else {
-        alert('Error, request failed');
+        alert('No new applicants available');
       }
     } catch (error) {
       alert(error);
