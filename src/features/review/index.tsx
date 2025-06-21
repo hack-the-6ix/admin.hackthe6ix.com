@@ -333,12 +333,19 @@ const ReviewPage = () => {
 
   // categorySection is a function that returns a div with a QuestionBox component (with user answer)
   // and a Box component (with rating choices) for the current category
-  const categorySection = (category: string, bgColor?: string) => {
+  const categorySection = (
+    category: string,
+    bgColor?: string,
+    innerColor?: string,
+    buttonColor?: string,
+  ) => {
     return (
       <div>
         {category !== 'portfolioLink' ?
           <QuestionBox
-            className={`mb-8 ${bgColor ?? 'bg-primary dark:bg-slate-700'}`}
+            className="mb-8"
+            outerColor={bgColor}
+            innerColor={innerColor}
             title={categoryNames[category as keyof typeof categoryNames]}
             label={
               categoryQuestions[category as keyof typeof categoryQuestions]
@@ -348,7 +355,9 @@ const ReviewPage = () => {
             {getResponse(category)}
           </QuestionBox>
         : <QuestionBox
-            className={`mb-8 ${bgColor ?? 'bg-primary dark:bg-slate-700'}`}
+            className="mb-8"
+            outerColor={bgColor}
+            innerColor={innerColor}
             title={categoryNames[category as keyof typeof categoryNames]}
             label={
               categoryQuestions[category as keyof typeof categoryQuestions]
@@ -397,7 +406,8 @@ const ReviewPage = () => {
                 ${
                   selectedRating[category] === i ?
                     'dark:bg-primary-dark text-black font-bold'
-                  : 'bg-primary-light dark:bg-slate-600 hover:bg-primary-dark hover:dark:bg-slate-800'
+                  : (buttonColor ??
+                    'bg-primary-light dark:bg-slate-600 hover:bg-primary-dark hover:dark:bg-slate-800')
                 }`}
                 style={{
                   backgroundColor:
@@ -467,14 +477,14 @@ const ReviewPage = () => {
       </button>
       <button
         onClick={showProfile}
-        className="m-4 p-2 pl-4 pr-4 bg-amber-500 rounded-2xl text-white hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark"
+        className="ml-4 p-2 pl-4 pr-4 bg-amber-500 rounded-2xl text-white hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark"
       >
         {toggleProfile ? 'Hide Profile' : 'Show Profile'}
       </button>
       {toggleProfile ?
         <button
           onClick={showNameFunction}
-          className="m-4 p-2 pl-4 pr-4 bg-amber-500 rounded-2xl text-white hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark"
+          className="ml-4 p-2 pl-4 pr-4 bg-amber-500 rounded-2xl text-white hover:bg-amber-600 dark:hover:bg-primary dark:bg-primary-dark"
         >
           {showName ? 'Hide Name' : 'Show Name'}
         </button>
@@ -490,9 +500,19 @@ const ReviewPage = () => {
           <div>{categorySection(parsedCategory)}</div>
         : <div className="gap-10 flex flex-col">
             {categorySection('creativeResponseEssay')}
-            {categorySection('whyHT6Essay', 'bg-sky-700 dark:bg-sky-900')}
+            {categorySection(
+              'whyHT6Essay',
+              'bg-sky-700 dark:bg-slate-700',
+              'bg-sky-200 dark:bg-slate-800',
+              'bg-sky-200 dark:bg-slate-700 hover:bg-sky-300 hover:dark:bg-slate-800',
+            )}
             {categorySection('oneSentenceEssay')}
-            {categorySection('portfolioLink', 'bg-sky-700 dark:bg-sky-900')}
+            {categorySection(
+              'portfolioLink',
+              'bg-sky-700 dark:bg-slate-700',
+              'bg-sky-200 dark:bg-slate-800',
+              'bg-sky-200 dark:bg-slate-700 hover:bg-sky-300 hover:dark:bg-slate-800',
+            )}
           </div>
         }
 

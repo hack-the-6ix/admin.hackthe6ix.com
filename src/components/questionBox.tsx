@@ -8,6 +8,9 @@ interface QuestionBoxProps {
   items?: string[];
   wordCount?: number;
   links?: string[];
+  labelColor?: string;
+  outerColor?: string;
+  innerColor?: string;
 }
 
 const QuestionBox: FC<QuestionBoxProps> = ({
@@ -18,19 +21,22 @@ const QuestionBox: FC<QuestionBoxProps> = ({
   className = '',
   items = [],
   links = [],
+  labelColor = 'text-white',
+  outerColor = 'bg-primary dark:bg-slate-700',
+  innerColor = 'bg-primary-light dark:bg-slate-800',
 }) => {
   return (
     <div
-      className={`bg-primary  text-white p-4 text-center rounded-2xl ${className}`}
+      className={`${outerColor} ${labelColor} p-4 px-6 rounded-2xl ${className}`}
     >
       {title && <h2 className="text-2xl font-bold mb-2">{title}</h2>}
-      {title && <h2 className="text-md mb-2">{label}</h2>}
+      {title && <h2 className="text-md mb-6">{label}</h2>}
       {items.length > 0 && (
         <ul className="mt-4 space-y-2 text-left mb-5">
           {items.map((item, index) => (
             <li
               key={index}
-              className="font-bold text-black dark:text-slate-400 bg-primary-light dark:bg-slate-800 p-2 pl-4 pr-4 rounded-xl text-center"
+              className={`font-bold text-black dark:text-slate-400 ${innerColor} p-2 pl-4 pr-4 rounded-xl`}
             >
               {links[index] ?
                 <a
@@ -46,11 +52,15 @@ const QuestionBox: FC<QuestionBoxProps> = ({
           ))}
         </ul>
       )}
-      <p className="font-bold text-black dark:text-slate-400 bg-primary-light dark:bg-slate-800 p-2 pl-4 pr-4 rounded-xl">
+      <p
+        className={`text-black dark:text-slate-400 ${innerColor} p-2 pl-4 pr-4 rounded-xl`}
+      >
         {children}
       </p>
       {wordCount ?
-        <p className="font-bold text-white dark:text-slate-400 mt-4">
+        <p
+          className={`font-bold ${labelColor} dark:text-slate-400 mt-4 text-right`}
+        >
           Word Count: {wordCount}
         </p>
       : null}
