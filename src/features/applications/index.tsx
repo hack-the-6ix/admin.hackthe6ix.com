@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import React, { Suspense, useState, useEffect } from 'react';
 import type { Info } from './+types';
 import ApplicationHeader from './application-header';
@@ -127,6 +128,7 @@ export default function Applications() {
     if (page >= 1 && page <= data.totalPage) {
       const params = new URLSearchParams(searchParams);
       params.set('page', page.toString());
+      setIsTableLoading(true);
       void navigate(`?${params.toString()}`);
     }
   };
@@ -134,6 +136,7 @@ export default function Applications() {
   const handleSize = (size: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('size', size.toString());
+    setIsTableLoading(true);
     void navigate(`?${params.toString()}`);
   };
 
@@ -157,8 +160,13 @@ export default function Applications() {
     </div>
   );
 
+  const scrollToTop = () => {
+    console.log(document.body.scrollHeight);
+    document.querySelector('#top')?.scrollIntoView();
+  };
+
   return (
-    <div className="p-4 m-3">
+    <div className="p-4 m-3" id="top">
       <ApplicationHeader isRanked={data.isRanked} handleRanked={handleRanked} />
       <div>
         {isTableLoading && <TableLoadingIndicator />}
@@ -185,12 +193,12 @@ export default function Applications() {
           <Suspense>
             <Await resolve={data} errorElement={<p>Oh no...</p>}>
               <tbody className="max-h-64 overflow-y-auto">
-                {data.applicants.map((user) => (
+                {data.applicants?.map((user) => (
                   <tr
                     key={user._id}
                     className="bg-gray-100 hover:bg-gray-200 dark:bg-slate-500 dark:hover:bg-slate-700"
                     onClick={() => {
-                      void navigate(`apps/${user._id}`);
+                      void navigate(`/user/${user._id}`);
                     }}
                   >
                     {[...columns.entries()].map(([key, value]) => (
@@ -208,7 +216,34 @@ export default function Applications() {
           </Suspense>
         </table>
       </div>
-      <div className="flex space-x-3 mt-4 items-center justify-end">
+      <div className="flex space-x-3 mt-4 items-center justify-end" id="bottom">
+        {parseInt(searchParams.get('size') ?? '10') > 10 && (
+          <Button
+            buttonType="primary"
+            onClick={scrollToTop}
+            className="font-normal px-2 py-1 dark:bg-primary-dark dark:hover:bg-primary"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m4.5 18.75 7.5-7.5 7.5 7.5"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m4.5 12.75 7.5-7.5 7.5 7.5"
+              />
+            </svg>
+          </Button>
+        )}
         <select
           className="mx-1 pl-2 py-1 border rounded dark:bg-slate-700"
           value={data.size}
@@ -247,6 +282,11 @@ export default function Applications() {
             max={data.totalPage}
             value={inputPage}
             onChange={handlePageInput}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handlePage(inputPage);
+              }
+            }}
             className="mx-1 pl-2 py-1 border rounded dark:bg-slate-700"
           />
           of {data.totalPage}

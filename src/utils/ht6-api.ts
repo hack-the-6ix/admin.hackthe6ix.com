@@ -254,22 +254,27 @@ export async function getUser(
     page,
     size,
   };
+  body.filter = {};
   if (sortCriteria) body.sortCriteria = sortCriteria;
   if (sortField) body.sortField = sortField;
   if (filter) body.filter = filter;
-  body.filter = filter ?? {};
   if (search) {
     const searchParts = search.trim().split(/\s+/);
-    const regexConditions = searchParts.map((part) => ({
-      $or: [
+    const regexConditions = searchParts.map((part) => {
+      const orConditions: Record<string, unknown>[] = [
         { firstName: { $regex: part, $options: 'i' } },
         { lastName: { $regex: part, $options: 'i' } },
-      ],
-    }));
+      ];
 
+      if (/^[a-f\d]{24}$/i.test(part)) {
+        orConditions.push({ _id: part });
+      }
+
+      return { $or: orConditions };
+    });
     body.filter = {
       ...(body.filter as Record<string, unknown>),
-      $and: regexConditions, // Combine all regex conditions
+      $and: regexConditions,
     };
   }
 
