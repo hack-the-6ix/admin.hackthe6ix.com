@@ -10,6 +10,7 @@ export default [
   layout('components/layouts/Dashboard.tsx', [
     route('admin-settings', 'features/admin-settings/index.tsx'),
     route('apps', 'features/applications/index.tsx'),
+    route('user/:id', 'features/user-details/index.tsx'),
     route('external-users', 'features/external-users/index.tsx'),
     route('review', 'features/review/index.tsx'),
     index('features/home/index.tsx'),
