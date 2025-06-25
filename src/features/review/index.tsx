@@ -350,7 +350,7 @@ const ReviewPage = () => {
             label={
               categoryQuestions[category as keyof typeof categoryQuestions]
             }
-            wordCount={getResponse(category).split(' ').length}
+            wordCount={getResponse(category).split(' ').length - 1}
           >
             {getResponse(category)}
           </QuestionBox>
@@ -362,7 +362,7 @@ const ReviewPage = () => {
             label={
               categoryQuestions[category as keyof typeof categoryQuestions]
             }
-            wordCount={getResponse(category).split(' ').length}
+            wordCount={getResponse(category).split(' ').length - 1}
             items={getResponse(category)
               .split('\n')
               .filter((_, index) => index % 2 === 0)}
