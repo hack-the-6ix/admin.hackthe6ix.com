@@ -1,28 +1,28 @@
 export const categories = [
-  'creativeResponseEssay',
-  'whyHT6Essay',
+  'longEssay',
+  'shortEssay',
   'oneSentenceEssay',
   'portfolioLink',
 ];
 
 export const maxPerCategory = {
-  creativeResponseEssay: 6,
-  whyHT6Essay: 4,
+  longEssay: 6,
+  shortEssay: 4,
   oneSentenceEssay: 3,
   portfolioLink: 6,
 };
 
 export const categoryNames = {
-  creativeResponseEssay: 'Long Essay - Project',
-  whyHT6Essay: 'Short Essay - Not School',
+  longEssay: 'Long Essay - Project',
+  shortEssay: 'Short Essay - Not School',
   oneSentenceEssay: 'One Sentence - Elephant',
   portfolioLink: 'Portfolio',
 };
 
 export const categoryQuestions = {
-  creativeResponseEssay:
+  longEssay:
     'Tell us about a project you’ve enjoyed working on (this can be non-technical!). What made you decide to work on this project? What challenges did you face and how did you overcome them?',
-  whyHT6Essay:
+  shortEssay:
     'If you could not do anything related to school, work, or coding for 4 months, what would you do and why?*',
   oneSentenceEssay:
     'You are given an elephant. You cannot sell or give away the elephant. What do you do with the elephant?',
@@ -30,15 +30,15 @@ export const categoryQuestions = {
 };
 
 export const APINames = {
-  creativeResponseEssay: 'longEssay',
-  whyHT6Essay: 'shortEssay',
+  longEssay: 'longEssay',
+  shortEssay: 'shortEssay',
   oneSentenceEssay: 'oneSentenceEssay',
   portfolioLink: 'portfolio',
 };
 
 export const rateNames = {
-  creativeResponseEssay: 'longEssay',
-  whyHT6Essay: 'shortEssay',
+  longEssay: 'longEssay',
+  shortEssay: 'shortEssay',
   oneSentenceEssay: 'oneSentenceEssay',
   portfolioLink: 'portfolio',
 };

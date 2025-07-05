@@ -65,13 +65,10 @@ const ReviewPage = () => {
 
   // getResponse function gets the applicant's response for the current category/question
   const getResponse = (category: string): string => {
-    if (category === 'creativeResponseEssay') {
-      return (
-        candidate.hackerApplication?.creativeResponseEssay ??
-        'No response provided'
-      );
-    } else if (category === 'whyHT6Essay') {
-      return candidate.hackerApplication?.whyHT6Essay ?? 'No response provided';
+    if (category === 'longEssay') {
+      return candidate.hackerApplication?.longEssay ?? 'No response provided';
+    } else if (category === 'shortEssay') {
+      return candidate.hackerApplication?.shortEssay ?? 'No response provided';
     } else if (category === 'oneSentenceEssay') {
       return (
         candidate.hackerApplication?.oneSentenceEssay ?? 'No response provided'
@@ -102,8 +99,8 @@ const ReviewPage = () => {
 
   // maxScore is the max score for the current category of the candidate given from the current user
   const maxScore: Record<string, number> = {
-    creativeResponseEssay: maxPerCategory.creativeResponseEssay,
-    whyHT6Essay: maxPerCategory.whyHT6Essay,
+    longEssay: maxPerCategory.longEssay,
+    shortEssay: maxPerCategory.shortEssay,
     oneSentenceEssay: maxPerCategory.oneSentenceEssay,
     portfolioLink: maxPerCategory.portfolioLink,
   };
@@ -111,8 +108,8 @@ const ReviewPage = () => {
   // selectedRating is the rating for the current category of the candidate given from the current user
   const [selectedRating, setSelectedRating] = useState<Record<string, number>>(
     () => ({
-      creativeResponseEssay: getGrade('creativeResponseEssay'),
-      whyHT6Essay: getGrade('whyHT6Essay'),
+      longEssay: getGrade('longEssay'),
+      shortEssay: getGrade('shortEssay'),
       oneSentenceEssay: getGrade('oneSentenceEssay'),
       portfolioLink: getGrade('portfolioLink'),
     }),
@@ -140,7 +137,7 @@ const ReviewPage = () => {
   const powerModeAction = () => {
     setPowerMode(!powerMode);
     if (category === '') {
-      setPowerModeCategory('creativeResponseEssay');
+      setPowerModeCategory('longEssay');
     } else {
       setPowerModeCategory(category);
       setPowerModeCatIndex(0);
@@ -499,9 +496,9 @@ const ReviewPage = () => {
         {parsedCategory !== '' ?
           <div>{categorySection(parsedCategory)}</div>
         : <div className="gap-10 flex flex-col">
-            {categorySection('creativeResponseEssay')}
+            {categorySection('longEssay')}
             {categorySection(
-              'whyHT6Essay',
+              'shortEssay',
               'bg-sky-700 dark:bg-slate-700',
               'bg-sky-200 dark:bg-slate-800',
               'bg-sky-200 dark:bg-slate-700 hover:bg-sky-300 hover:dark:bg-slate-800',

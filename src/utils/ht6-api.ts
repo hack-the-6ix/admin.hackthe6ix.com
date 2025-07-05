@@ -115,8 +115,8 @@ export interface User {
     githubLink?: string;
     portfolioLink?: string;
     linkedinLink?: string;
-    creativeResponseEssay?: string;
-    whyHT6Essay?: string;
+    longEssay?: string;
+    shortEssay?: string;
     mlhCOC?: boolean;
     mlhEmail?: boolean;
     mlhData?: boolean;
@@ -127,15 +127,15 @@ export interface User {
     computedApplicationScore?: number;
     computedFinalApplicationScore?: number;
     applicationScores?: {
-      whyHT6: {
+      shortEssay: {
         score: number;
         reviewer?: string;
       };
-      creativeResponse: {
+      longEssay: {
         score: number;
         reviewer?: string;
       };
-      project: {
+      oneSentenceEssay: {
         score: number;
         reviewer?: string;
       };

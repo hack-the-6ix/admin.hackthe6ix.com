@@ -144,14 +144,13 @@ export default function UserDetails() {
             </Box>
 
             {categorySection(
-              'creativeResponseEssay',
+              'longEssay',
 
-              candidate.hackerApplication?.creativeResponseEssay ??
-                'Not Provided',
+              candidate.hackerApplication?.longEssay ?? 'Not Provided',
             )}
             {categorySection(
-              'whyHT6Essay',
-              candidate.hackerApplication?.whyHT6Essay ?? 'Not Provided',
+              'shortEssay',
+              candidate.hackerApplication?.shortEssay ?? 'Not Provided',
             )}
             {categorySection(
               'oneSentenceEssay',
