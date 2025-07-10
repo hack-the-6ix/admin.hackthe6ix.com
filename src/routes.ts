@@ -19,4 +19,5 @@ export default [
     route('login', 'features/auth/Login.tsx'),
     route('callback', 'features/auth/Callback.tsx'),
   ]),
+  route('u/:nfcId', 'features/participant/ParticipantDetail.tsx'),
 ] satisfies RouteConfig;
