@@ -1,6 +1,7 @@
 import Button from '@/components/button';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router';
+import ReviewModal from '@/components/review-modal';
 
 const ApplicationHeader = ({
   isRanked,
@@ -10,6 +11,7 @@ const ApplicationHeader = ({
   handleRanked: () => void;
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [reviewModal, setReviewModal] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSearch = () => {
@@ -24,7 +26,12 @@ const ApplicationHeader = ({
   };
 
   const toggleReviewModal = () => {
-    // setReviewModal(!reviewModal);
+    setReviewModal(!reviewModal);
+  };
+
+  const scrollToBottom = () => {
+    console.log(document.body.scrollHeight);
+    document.querySelector('#bottom')?.scrollIntoView();
   };
 
   return (
@@ -37,6 +44,27 @@ const ApplicationHeader = ({
           </p>
         </div>
         <div className="flex md:flex md:flex-grow flex-row justify-end space-x-3 flex-wrap">
+          {parseInt(searchParams.get('size') ?? '10') > 10 && (
+            <Button
+              className="h-12 dark:bg-primary-dark dark:hover:bg-primary"
+              onClick={scrollToBottom}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5"
+                />
+              </svg>
+            </Button>
+          )}
           <Button
             className="h-12 dark:bg-primary-dark dark:hover:bg-primary"
             onClick={handleRanked}
@@ -80,7 +108,7 @@ const ApplicationHeader = ({
         <div className="relative">
           <input
             className="w-full bg-white dark:bg-slate-700 placeholder:text-slate-500 text-slate-900 dark:text-slate-100 text-sm border border-slate-900 rounded-xl pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-primary  shadow-sm focus:shadow dark:border-slate-500 dark:focus:border-white"
-            placeholder="Search for an applicant..."
+            placeholder="Search for an applicant with name or id..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -114,6 +142,7 @@ const ApplicationHeader = ({
           </button>
         </div>
       </div>
+      <ReviewModal isOpen={reviewModal} onClose={toggleReviewModal} />
     </div>
   );
 };

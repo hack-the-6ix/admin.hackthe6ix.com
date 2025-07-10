@@ -5,11 +5,11 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigate,
 } from 'react-router';
 import type { Route } from './+types/root';
 import './index.css';
 import { PropsWithChildren } from 'react';
-import { useNavigate } from 'react-router';
 import PageLoader from './components/page-loader';
 
 export function Layout({ children }: PropsWithChildren) {

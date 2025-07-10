@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { maxPerCategory, APINames } from '@/utils/const';
-import { getCandidate } from '@/utils/ht6-api';
+import { useNavigate } from 'react-router';
+import { categoryNames, APINames } from '@/utils/const';
+import { getCandidate, getDownloadURL } from '@/utils/ht6-api';
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -9,7 +9,6 @@ interface ReviewModalProps {
 }
 const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedAmount, setSelectedAmount] = useState<string>('1');
   const navigation = useNavigate();
 
   const submit = async () => {
@@ -20,13 +19,21 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
         );
 
       const result = await getCandidate(true, processedCategory);
+      const downloadURL = await getDownloadURL(
+        'resumes',
+        result.message.hackerApplication?.resumeFileName ?? 'null',
+      );
 
       if (result.message._id) {
         void navigation('/review', {
-          state: { candidate: result.message, category: selectedCategory },
+          state: {
+            candidate: result.message,
+            category: selectedCategory,
+            resumeLink: downloadURL.message,
+          },
         });
       } else {
-        alert('Error, request failed');
+        alert('No new applicants available');
       }
     } catch (error) {
       alert(error);
@@ -49,7 +56,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
         </h2>
         <div>
           <p className="text-sm text-slate-800 mb-3  dark:text-white">
-            Select a category and amount to review
+            Select a category
           </p>
           <div className="flex items-center space-x-4">
             <select
@@ -61,22 +68,11 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose }) => {
               className="flex-1 w-full border border-slate-300 dark:border-white rounded-md p-2 mb-4 focus:ring-primary focus:border-primary dark:bg-slate-500"
             >
               <option value="">No Preference</option>
-              {Object.keys(maxPerCategory).map((key) => (
+              {Object.keys(categoryNames).map((key) => (
                 <option value={key} key={key}>
-                  {key}
+                  {categoryNames[key as keyof typeof categoryNames]}
                 </option>
               ))}
-            </select>
-            <select
-              value={selectedAmount}
-              onChange={(e) => {
-                setSelectedAmount(e.target.value);
-              }}
-              className="w-20 border dark:border-white border-slate-300 rounded-md p-2 mb-4 focus:ring-primary focus:border-primary dark:bg-slate-500"
-            >
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
             </select>
           </div>
           <button

@@ -115,26 +115,27 @@ export interface User {
     githubLink?: string;
     portfolioLink?: string;
     linkedinLink?: string;
-    creativeResponseEssay?: string;
-    whyHT6Essay?: string;
+    longEssay?: string;
+    shortEssay?: string;
     mlhCOC?: boolean;
     mlhEmail?: boolean;
     mlhData?: boolean;
+    oneSentenceEssay?: string;
   };
   internal: {
     notes?: string;
     computedApplicationScore?: number;
     computedFinalApplicationScore?: number;
     applicationScores?: {
-      whyHT6: {
+      shortEssay: {
         score: number;
         reviewer?: string;
       };
-      creativeResponse: {
+      longEssay: {
         score: number;
         reviewer?: string;
       };
-      project: {
+      oneSentenceEssay: {
         score: number;
         reviewer?: string;
       };
@@ -223,15 +224,23 @@ export const getCandidate = async (
   );
 };
 
-export const gradeCandidate = async (candidateID: string, grade: string) => {
-  return fetchHt6Api<User, never>(`/api/action/gradeCandidate`, {
-    method: 'POST',
-    searchParams: new URLSearchParams({
-      candidateID: candidateID,
-      grade: grade,
-    }),
-  });
-};
+export async function gradeCandidate(
+  candidateID: string,
+  grade: Record<string, number>,
+) {
+  const body: Record<string, unknown> = {
+    candidateID,
+    grade,
+  };
+
+  return fetchHt6Api<string, Record<string, unknown>>(
+    'api/action/gradeCandidate',
+    {
+      payload: body,
+      method: 'POST',
+    },
+  );
+}
 
 export async function getUser(
   page = 1,
@@ -245,22 +254,27 @@ export async function getUser(
     page,
     size,
   };
+  body.filter = {};
   if (sortCriteria) body.sortCriteria = sortCriteria;
   if (sortField) body.sortField = sortField;
   if (filter) body.filter = filter;
-  body.filter = filter ?? {};
   if (search) {
     const searchParts = search.trim().split(/\s+/);
-    const regexConditions = searchParts.map((part) => ({
-      $or: [
+    const regexConditions = searchParts.map((part) => {
+      const orConditions: Record<string, unknown>[] = [
         { firstName: { $regex: part, $options: 'i' } },
         { lastName: { $regex: part, $options: 'i' } },
-      ],
-    }));
+      ];
 
+      if (/^[a-f\d]{24}$/i.test(part)) {
+        orConditions.push({ _id: part });
+      }
+
+      return { $or: orConditions };
+    });
     body.filter = {
-      ...body.filter,
-      $and: regexConditions, // Combine all regex conditions
+      ...(body.filter as Record<string, unknown>),
+      $and: regexConditions,
     };
   }
 
@@ -269,6 +283,25 @@ export async function getUser(
     method: 'POST',
   });
 }
+
+export async function editObject(
+  object: string,
+  filter: Record<string, unknown>,
+  changes: Record<string, unknown>,
+  noFlatten?: boolean,
+) {
+  if (noFlatten === undefined) noFlatten = false;
+  const body: Record<string, unknown> = {
+    filter,
+    changes,
+    noFlatten,
+  };
+  return fetchHt6Api<string[], Record<string, unknown>>(`/api/edit/${object}`, {
+    payload: body,
+    method: 'POST',
+  });
+}
+
 export async function getRankedUser() {
   return fetchHt6Api<UsersResponse, Record<string, unknown>>(
     '/api/action/getRanks',
@@ -286,4 +319,21 @@ export const getFileURL = async (filename: string) => {
       bucket: 'resumes',
     }),
   });
+};
+
+export const getDownloadURL = async (
+  container: string,
+  blobName: string,
+  expiresInMinutes?: number,
+) => {
+  const params = new URLSearchParams({ container, blobName });
+  if (expiresInMinutes)
+    params.append('expiresInMinutes', expiresInMinutes.toString());
+
+  return fetchHt6Api<string, never>(
+    `/api/blob/download-url?${params.toString()}`,
+    {
+      method: 'GET',
+    },
+  );
 };
