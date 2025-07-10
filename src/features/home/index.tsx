@@ -2,10 +2,10 @@ import Box from '../../components/box';
 import LeaderBoard from './leaderboard';
 import {
   getStatistics,
-  loaderAuthCheck,
+  // loaderAuthCheck,
   StatisticsResponse,
 } from '../../utils/ht6-api';
-import { useLoaderData } from 'react-router';
+import { useLoaderData, redirect } from 'react-router';
 import PieChart from '../../components/piechart';
 
 const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
@@ -24,10 +24,13 @@ const formatEntries = (
     formatKeyValue(key, value, total),
   );
 
-export const clientLoader = loaderAuthCheck(async () => {
+export const clientLoader = async () => {
+  if (!window.localStorage.getItem('HT6_token')) {
+    return redirect('/role-select');
+  }
   const data = await getStatistics(true);
   return data.message;
-});
+};
 
 export default function Home() {
   const data = useLoaderData<StatisticsResponse>();

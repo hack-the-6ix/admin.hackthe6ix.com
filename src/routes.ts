@@ -7,6 +7,7 @@ import {
 } from '@react-router/dev/routes';
 
 export default [
+  route('role-select', 'features/auth/RoleSelect.tsx'),
   layout('components/layouts/Dashboard.tsx', [
     route('admin-settings', 'features/admin-settings/index.tsx'),
     route('apps', 'features/applications/index.tsx'),
