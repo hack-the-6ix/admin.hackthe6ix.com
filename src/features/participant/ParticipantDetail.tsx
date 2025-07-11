@@ -23,7 +23,7 @@ export default function ParticipantDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const apiBaseURL = "http://localhost:6971";
+  const apiBaseURL = import.meta.env.VITE_API_HOST;
 
   const checkInFromNFC = async (nfcId: string, checkInEvent: string) => {
     const response = await fetch(`${apiBaseURL}/nfc/checkInFromNFC`, {
@@ -117,8 +117,8 @@ export default function ParticipantDetail() {
   }
 
   return (
-    <div className="container flex items-center justify-center h-dvh mx-auto px-4">
-      <div className="bg-white shadow-sm border border-slate-200 rounded-lg p-6 max-w-prose w-full">
+    <div className="container mx-auto px-4 py-8 min-h-screen">
+      <div className="bg-white shadow-sm border border-slate-200 rounded-lg p-6 max-w-prose w-full mx-auto">
         <h1 className="text-2xl font-bold mb-4">
           {participant.user.firstName} {participant.user.lastName}
         </h1>
@@ -140,38 +140,49 @@ export default function ParticipantDetail() {
               const hasCheckedIn = checkIn.checkIns.length > 0;
 
               return (
-              <div key={checkIn.event.name} className="flex items-center justify-between p-3 border rounded">
-                <span className="capitalize">{checkIn.event.name.replace(/([A-Z])/g, ' $1').trim()}</span>
-                <button
-                  onClick={async () => {
-                    try {
-                      // returns ISO string
-                      const newCheckIn: string = await checkInFromNFC(nfcId!, checkIn.event.name);
-                      setParticipant(prev => prev ? {
-                        ...prev,
-                        user: {
-                          ...prev.user,
-                          checkIns: [
-                            ...prev.user.checkIns,
-                            {
-                              event: checkIn.event,
-                              checkIns: [...checkIn.checkIns, newCheckIn]
-                            }
-                          ]
-                        }
-                      } : null);
-                    } catch (err) {
-                      setError('Failed to update check-in status');
-                    }
-                  }}
-                  className={`px-4 py-2 rounded ${
-                    checkIn.checkIns.length > 0 
-                      ? 'bg-green-500 text-white hover:bg-green-600' 
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  } transition-colors`}
-                >
-                  {hasCheckedIn ? 'Checked In - Most Recent: ' + new Date(checkIn.checkIns[checkIn.checkIns.length - 1]).toLocaleString() : 'Not Checked In'}
-                </button>
+              <div key={checkIn.event.name} className="p-3 border rounded">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="capitalize font-medium">{checkIn.event.name.replace(/([A-Z])/g, ' $1').trim()}</span>
+                  <button
+                    onClick={async () => {
+                      try {
+                        // returns ISO string
+                        const newCheckIn: string = await checkInFromNFC(nfcId!, checkIn.event.name);
+                        setParticipant(prev => prev ? {
+                          ...prev,
+                          user: {
+                            ...prev.user,
+                            checkIns: [
+                              ...prev.user.checkIns,
+                              {
+                                event: checkIn.event,
+                                checkIns: [...checkIn.checkIns, newCheckIn]
+                              }
+                            ]
+                          }
+                        } : null);
+                      } catch (err) {
+                        setError('Failed to update check-in status');
+                      }
+                    }}
+                    className={`px-4 py-2 rounded text-sm ${
+                      checkIn.checkIns.length > 0 
+                        ? 'bg-green-500 text-white hover:bg-green-600' 
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    } transition-colors`}
+                  >
+                    {hasCheckedIn ? `Checked In (${checkIn.checkIns.length})` : 'Not Checked In'}
+                  </button>
+                </div>
+                <div className="text-xs text-gray-500 flex gap-4">
+                  <span>Start: {new Date(checkIn.event.start).toLocaleString()}</span>
+                  <span>End: {new Date(checkIn.event.end).toLocaleString()}</span>
+                </div>
+                {hasCheckedIn && (
+                  <div className="text-xs text-gray-500 mt-2">
+                    Most Recent: {new Date(checkIn.checkIns[checkIn.checkIns.length - 1]).toLocaleString()}
+                  </div>
+                )}
               </div>
             )})}
           </div>
