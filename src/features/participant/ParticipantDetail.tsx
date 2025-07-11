@@ -162,7 +162,7 @@ export default function ParticipantDetail() {
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
-      <div className="bg-white shadow-sm border border-slate-200 rounded-lg p-6 max-w-prose w-full mx-auto">
+      <div className="bg-transparent md:bg-white md:shadow-sm md:border md:border-slate-200 md:rounded-lg p-0 md:p-6 max-w-prose w-full mx-auto">
         <h1 className="text-2xl font-bold mb-4">
           {participant.user.firstName} {participant.user.lastName}
         </h1>
@@ -190,32 +190,6 @@ export default function ParticipantDetail() {
                 <div className="flex items-center justify-between mb-2">
                   <span className="capitalize font-medium">{checkIn.event.name.replace(/([A-Z])/g, ' $1').trim()}</span>
                   <div className="flex gap-2">
-                    {hasCheckedIn && (
-                      <button
-                        onClick={async () => {
-                          try {
-                            await removeLastCheckIn(nfcId!, checkIn.event.name);
-                            // Refresh the participant data to get the updated state from the server
-                            const updatedResponse = await fetch(`${apiBaseURL}/nfc/getUser/${nfcId}`, {
-                              method: 'GET',
-                              headers: {
-                                'Content-Type': 'application/json',
-                              },
-                            });
-                            
-                            if (updatedResponse.ok) {
-                              const updatedData = await updatedResponse.json();
-                              setParticipant(updatedData);
-                            }
-                          } catch (err) {
-                            setError('Failed to remove last check-in');
-                          }
-                        }}
-                        className="text-xs px-2 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
-                      >
-                        Undo Last
-                      </button>
-                    )}
                     <button
                       onClick={async () => {
                         try {
@@ -256,8 +230,32 @@ export default function ParticipantDetail() {
                   </span>
                 </div>
                 {hasCheckedIn && (
-                  <div className="text-xs text-gray-500 mt-2">
-                    Most Recent: {formatTime(checkIn.checkIns[checkIn.checkIns.length - 1])}
+                  <div className="flex items-center gap-3 text-xs text-gray-500 mt-2">
+                    <span>
+                      Most Recent: {formatTime(checkIn.checkIns[checkIn.checkIns.length - 1])}
+                    </span>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await removeLastCheckIn(nfcId!, checkIn.event.name);
+                          const updatedResponse = await fetch(`${apiBaseURL}/nfc/getUser/${nfcId}`, {
+                            method: 'GET',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                          });
+                          if (updatedResponse.ok) {
+                            const updatedData = await updatedResponse.json();
+                            setParticipant(updatedData);
+                          }
+                        } catch (err) {
+                          setError('Failed to remove last check-in');
+                        }
+                      }}
+                      className="text-xs px-2 py-1 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
+                    >
+                      Undo Last
+                    </button>
                   </div>
                 )}
               </div>
