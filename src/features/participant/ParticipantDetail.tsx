@@ -195,24 +195,25 @@ export default function ParticipantDetail() {
                         onClick={async () => {
                           try {
                             await removeLastCheckIn(nfcId!, checkIn.event.name);
-                            setParticipant(prev => prev ? {
-                              ...prev,
-                              user: {
-                                ...prev.user,
-                                checkIns: prev.user.checkIns.map(ci => 
-                                  ci.event.name === checkIn.event.name 
-                                    ? { ...ci, checkIns: ci.checkIns.slice(0, -1) }
-                                    : ci
-                                )
-                              }
-                            } : null);
+                            // Refresh the participant data to get the updated state from the server
+                            const updatedResponse = await fetch(`${apiBaseURL}/nfc/getUser/${nfcId}`, {
+                              method: 'GET',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                            });
+                            
+                            if (updatedResponse.ok) {
+                              const updatedData = await updatedResponse.json();
+                              setParticipant(updatedData);
+                            }
                           } catch (err) {
                             setError('Failed to remove last check-in');
                           }
                         }}
-                        className="px-3 py-2 rounded text-sm bg-red-500 text-white hover:bg-red-600 transition-colors"
+                        className="text-xs px-2 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
                       >
-                        Remove Last
+                        Undo Last
                       </button>
                     )}
                     <button
@@ -220,19 +221,18 @@ export default function ParticipantDetail() {
                         try {
                           // returns ISO string
                           const newCheckIn: string = await checkInFromNFC(nfcId!, checkIn.event.name);
-                          setParticipant(prev => prev ? {
-                            ...prev,
-                            user: {
-                              ...prev.user,
-                              checkIns: [
-                                ...prev.user.checkIns,
-                                {
-                                  event: checkIn.event,
-                                  checkIns: [...checkIn.checkIns, newCheckIn]
-                                }
-                              ]
-                            }
-                          } : null);
+                                                  // Refresh the participant data to get the updated state from the server
+                          const updatedResponse = await fetch(`${apiBaseURL}/nfc/getUser/${nfcId}`, {
+                            method: 'GET',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                          });
+                        
+                        if (updatedResponse.ok) {
+                          const updatedData = await updatedResponse.json();
+                          setParticipant(updatedData);
+                        }
                         } catch (err) {
                           setError('Failed to update check-in status');
                         }
