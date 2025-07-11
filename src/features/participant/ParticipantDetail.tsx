@@ -1,25 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import PageLoader from '../../components/page-loader';
-
-interface CheckIns {
-  hackerCheckIn: boolean;
-  lunchOne: boolean;
-  dinnerOne: boolean;
-  eventOne: boolean;
-  snackOne: boolean;
-  lunchTwo: boolean;
-  dinnerTwo: boolean;
-}
+import { User } from '@/utils/ht6-api';
 
 interface Participant {
-  user: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    checkInTime?: number;
-    checkIns: CheckIns;
+  user: User & {
+    checkIns: {
+      event: {
+        name: string;
+        start: string; // "2025-07-18T21:00:00.000Z"
+        end: string;
+      };
+      checkIns: string[]; // ISO string
+    }[];
   }
 }
 
@@ -30,10 +23,10 @@ export default function ParticipantDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const apiBaseURL = "http://localhost:3000";
+  const apiBaseURL = "http://localhost:6971";
 
-  const updateCheckInField = async (nfcId: string, checkInEvent: string, value: boolean) => {
-    const response = await fetch(`${apiBaseURL}/nfc/updateCheckInsFromNFC`, {
+  const checkInFromNFC = async (nfcId: string, checkInEvent: string) => {
+    const response = await fetch(`${apiBaseURL}/nfc/checkInFromNFC`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41,7 +34,6 @@ export default function ParticipantDetail() {
       body: JSON.stringify({
         nfcId,
         checkInEvent,
-        value,
       }),
     });
   
@@ -51,6 +43,15 @@ export default function ParticipantDetail() {
   
     return response.json();
   };
+
+  // checkIns?: {
+  //   event: {
+  //     name: string;
+  //     start: string; // "2025-07-18T21:00:00.000Z"
+  //     end: string;
+  //   };
+  //   checkIns: string[]; // ISO string
+  // }[];
 
   useEffect(() => {
     const fetchParticipant = async () => {
@@ -78,6 +79,18 @@ export default function ParticipantDetail() {
 
     void fetchParticipant();
   }, [nfcId]);
+
+  useEffect(() => {
+    // replace with actual check later
+    const isVolunteer = true;
+    if (!isVolunteer) {
+      if (participant?.user.hackerApplication?.linkedinLink) {
+        window.location.href = participant.user.hackerApplication.linkedinLink;
+      } else {
+        window.location.href = 'https://hackthe6ix.com';
+      }
+    } 
+  }, [nfcId, participant]);
 
   if (loading) {
     return <PageLoader />;
@@ -122,21 +135,29 @@ export default function ParticipantDetail() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Check-in Events</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {participant.user.checkIns && Object.entries(participant.user.checkIns).map(([event, checked]) => (
-              <div key={event} className="flex items-center justify-between p-3 border rounded">
-                <span className="capitalize">{event.replace(/([A-Z])/g, ' $1').trim()}</span>
+            {participant.user.checkIns && participant.user.checkIns.map((checkIn) => {
+
+              const hasCheckedIn = checkIn.checkIns.length > 0;
+
+              return (
+              <div key={checkIn.event.name} className="flex items-center justify-between p-3 border rounded">
+                <span className="capitalize">{checkIn.event.name.replace(/([A-Z])/g, ' $1').trim()}</span>
                 <button
                   onClick={async () => {
                     try {
-                      await updateCheckInField(nfcId!, event, !checked);
+                      // returns ISO string
+                      const newCheckIn: string = await checkInFromNFC(nfcId!, checkIn.event.name);
                       setParticipant(prev => prev ? {
                         ...prev,
                         user: {
                           ...prev.user,
-                          checkIns: {
+                          checkIns: [
                             ...prev.user.checkIns,
-                            [event]: !checked
-                          }
+                            {
+                              event: checkIn.event,
+                              checkIns: [...checkIn.checkIns, newCheckIn]
+                            }
+                          ]
                         }
                       } : null);
                     } catch (err) {
@@ -144,15 +165,15 @@ export default function ParticipantDetail() {
                     }
                   }}
                   className={`px-4 py-2 rounded ${
-                    checked 
+                    checkIn.checkIns.length > 0 
                       ? 'bg-green-500 text-white hover:bg-green-600' 
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   } transition-colors`}
                 >
-                  {checked ? 'Checked' : 'Not Checked'}
+                  {hasCheckedIn ? 'Checked In - Most Recent: ' + new Date(checkIn.checkIns[checkIn.checkIns.length - 1]).toLocaleString() : 'Not Checked In'}
                 </button>
               </div>
-            ))}
+            )})}
           </div>
         </div>
       </div>
