@@ -4,6 +4,25 @@ import axios from 'axios';
 
 const apiBaseURL = import.meta.env.VITE_API_HOST;
 
+const populateEvents = async (userId: string) => {
+
+  try {
+    const response = await axios.post(`${apiBaseURL}/nfc/populateEvents`, {
+      userId: userId
+    });
+
+    if (response.status == 200) {
+      return response.data;
+    } else {
+      throw new Error('Failed to populate check-ins');
+    }
+
+  } catch (err) {
+    throw err;
+  }
+
+}
+
 const generateNfcId = async (user: User) => {
   const id = user._id;
   const { firstName, lastName } = user;
@@ -24,7 +43,7 @@ const generateNfcId = async (user: User) => {
       nfcId = `${firstName}-${lastName.slice(0, idx)}`;
     }
 
-    const existingIdResponse = await axios.get(`${apiBaseURL}/nfc/getUserId/${nfcId}`);
+    const existingIdResponse = await axios.get(`${apiBaseURL}/nfc/getUserId/${nfcId.toLowerCase()}`);
 
       // existing row and response / user id is not null
       if (existingIdResponse.status == 200 && existingIdResponse.data.userId) {
@@ -47,13 +66,18 @@ const generateNfcId = async (user: User) => {
       }
   
   }
-
   
   try {
     const assignResponse = await axios.post(`${apiBaseURL}/nfc/assign`, {
-      nfcId: nfcId,
+      nfcId: nfcId.toLowerCase(),
       userId: id
     })
+
+    if (assignResponse.status == 200) {
+      await populateEvents(id);
+    } else {
+      throw new Error('Failed to assign NFC ID');
+    }
 
     return nfcId;
 
@@ -84,8 +108,12 @@ export default function AssignNfc() {
     setLoading(true);
     try {
       const result = await getUser(1, 50, 'asc', '', term.trim(), {});
-      setUsers((result.message).filter((user: User) => user.status.confirmed));
-      
+      if (typeof result.message != 'object') {
+        setUsers([]);
+      } else {
+        setUsers((result.message).filter((user: User) => user.status.confirmed));
+      }
+
     } catch (error) {
       console.error('Search failed:', error);
       setUsers([]);
@@ -117,7 +145,7 @@ export default function AssignNfc() {
         </div>
 
         <div className="mb-6">
-          {users.map((user: User) => (
+          {users.length > 0 && users.map((user: User) => (
             <div key={user._id} className="py-2 border-b border-gray-200 flex justify-between">
               <div className="flex flex-col gap-2">
                 <p>
