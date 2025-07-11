@@ -51,7 +51,7 @@ const generateNfcId = async (user: User) => {
 
         // if assignment already exists in db and it matches user id 
         if (existingId == id) {
-          return nfcId;
+          return nfcId.toLowerCase();
   
         } else {
           console.log('NFC ID taken by different user, trying next...');
@@ -79,7 +79,7 @@ const generateNfcId = async (user: User) => {
       throw new Error('Failed to assign NFC ID');
     }
 
-    return nfcId;
+    return nfcId.toLowerCase();
 
   } catch (err) {
     throw err;
