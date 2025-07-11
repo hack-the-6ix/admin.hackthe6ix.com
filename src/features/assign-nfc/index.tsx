@@ -83,10 +83,9 @@ export default function AssignNfc() {
 
     setLoading(true);
     try {
-      const result = await getUser(1, 50, 'asc', '', term.trim(), {
-        $and: [{ 'roles.hacker': true }],
-      });
-      setUsers(result.message);
+      const result = await getUser(1, 50, 'asc', '', term.trim(), {});
+      setUsers((result.message).filter((user: User) => user.status.confirmed));
+      
     } catch (error) {
       console.error('Search failed:', error);
       setUsers([]);
@@ -105,7 +104,7 @@ export default function AssignNfc() {
   }, [searchTerm]);
 
   return (
-    <div className="p-4 grid grid-cols-2 gap-4">
+    <div className="p-8 grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
         <div className="mb-4">
           <input
