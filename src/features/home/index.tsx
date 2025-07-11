@@ -7,6 +7,7 @@ import {
 } from '../../utils/ht6-api';
 import { useLoaderData, redirect } from 'react-router';
 import PieChart from '../../components/piechart';
+import VolunteerDashboard from './volunteer-dashboard';
 
 const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -28,12 +29,23 @@ export const clientLoader = async () => {
   if (!window.localStorage.getItem('HT6_token')) {
     return redirect('/role-select');
   }
+
+  const userRole = localStorage.getItem('HT6_user_role') || 'organizer';
+  if (userRole === 'volunteer') {
+    return null;
+  }
+
   const data = await getStatistics(true);
   return data.message;
 };
 
 export default function Home() {
   const data = useLoaderData<StatisticsResponse>();
+  const userRole = localStorage.getItem('HT6_user_role') || 'organizer';
+
+  if (userRole === 'volunteer' || !data) {
+    return <VolunteerDashboard />;
+  }
 
   const downloadJSON = () => {
     const jsonData = JSON.stringify(data, null, 2);

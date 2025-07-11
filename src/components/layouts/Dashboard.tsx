@@ -3,11 +3,17 @@ import { useState, useEffect } from 'react';
 import logo from '../../assets/Logo.svg';
 import PageLoader from '../page-loader';
 
-const pages = [
+const organizerPages = [
   { label: 'Home', to: '/' },
   { label: 'Applications', to: '/apps' },
+  { label: 'Volunteers', to: '/volunteers' },
   { label: 'External Users', to: '/external-users' },
   { label: 'Admin Settings', to: '/admin-settings' },
+];
+
+const volunteerPages = [
+  { label: 'Home', to: '/' },
+  { label: 'Applications', to: '/apps' },
 ];
 
 export default function DashboardLayout() {
@@ -19,6 +25,9 @@ export default function DashboardLayout() {
   const [isDarkMode, setIsDarkMode] = useState(
     () => localStorage.getItem('theme') === 'dark',
   );
+
+  const userRole = localStorage.getItem('HT6_user_role') || 'organizer';
+  const pages = userRole === 'volunteer' ? volunteerPages : organizerPages;
 
   useEffect(() => {
     const html = document.documentElement;

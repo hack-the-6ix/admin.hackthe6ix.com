@@ -13,11 +13,13 @@ export default [
     route('apps', 'features/applications/index.tsx'),
     route('user/:id', 'features/user-details/index.tsx'),
     route('external-users', 'features/external-users/index.tsx'),
+    route('volunteers', 'features/volunteers/index.tsx'),
     route('review', 'features/review/index.tsx'),
     index('features/home/index.tsx'),
   ]),
   ...prefix('auth', [
     route('login', 'features/auth/Login.tsx'),
     route('callback', 'features/auth/Callback.tsx'),
+    route('volunteer', 'features/auth/VolunteerLogin.tsx'),
   ]),
 ] satisfies RouteConfig;

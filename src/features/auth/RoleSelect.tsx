@@ -17,9 +17,7 @@ export default function RoleSelect() {
         </button>
         <button
           className="px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg text-lg font-semibold w-64"
-          onClick={() => {
-            '/auth/volunteer';
-          }}
+          onClick={() => navigate('/auth/volunteer')}
         >
           Log in as Volunteer
         </button>
