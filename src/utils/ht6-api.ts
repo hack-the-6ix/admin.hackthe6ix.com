@@ -173,7 +173,7 @@ export async function fetchHt6Api<
     });
   }
 
-  const data = await fetch(requestUrl, {
+  const response = await fetch(requestUrl, {
     body: payload ? JSON.stringify(payload) : null,
     headers: {
       'X-Access-Token': window.localStorage.getItem('HT6_token') ?? '',
@@ -182,7 +182,16 @@ export async function fetchHt6Api<
     method,
   });
 
-  return data.json() as Promise<Ht6ApiResponse<Result>>;
+  const data = (await response.json()) as Ht6ApiResponse<Result>;
+
+  if (data.status !== 200) {
+    const error = new Error(data.message as string);
+    (error as any).status = data.status;
+    (error as any).message = data.message;
+    throw error;
+  }
+
+  return data;
 }
 
 export function toLoaderResult<T>(result: Ht6ApiResponse<T>) {
@@ -334,6 +343,120 @@ export const getDownloadURL = async (
     `/api/blob/download-url?${params.toString()}`,
     {
       method: 'GET',
+    },
+  );
+};
+
+export interface OTP {
+  id: string;
+  code: string;
+  email: string;
+  used: boolean;
+  expiration: string;
+  createdAt: string;
+  usedBy?: string;
+  usedAt?: string;
+  issuedBy: string;
+  usedName?: string;
+}
+
+export interface GenerateOTPResponse {
+  success: boolean;
+  message: string;
+  code: string;
+  expiration: string;
+}
+
+export interface VerifyOTPResponse {
+  success: boolean;
+  message: string;
+  user: User;
+  token: string;
+}
+
+export interface GetAllOTPsResponse {
+  success: boolean;
+  otps: OTP[];
+}
+
+export const generateOTP = async (email: string) => {
+  return fetchHt6Api<GenerateOTPResponse, { email: string }>(
+    '/api/action/generate-otp',
+    {
+      payload: { email },
+      method: 'POST',
+    },
+  );
+};
+
+export const verifyOTP = async (code: string, email: string) => {
+  return fetchHt6Api<VerifyOTPResponse, { code: string; email: string }>(
+    '/api/action/verify-otp',
+    {
+      payload: { code, email },
+      method: 'POST',
+    },
+  );
+};
+
+export const getAllOTPs = async () => {
+  return fetchHt6Api<GetAllOTPsResponse, never>('/api/action/get-all-otps', {
+    method: 'GET',
+  });
+};
+
+export const expireOTP = async (otpId: string) => {
+  return fetchHt6Api<{ success: boolean; message: string }, never>(
+    `/api/action/expire-otp/${otpId}`,
+    {
+      method: 'POST',
+    },
+  );
+};
+
+export interface ExternalUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  notes?: string;
+  status: {
+    checkedIn: boolean;
+  };
+  checkInQR?: string;
+  checkInNotes: string[];
+  checkInTime?: number;
+  discord?: {
+    discordID?: string;
+    username?: string;
+    verifyTime?: number;
+    additionalRoles: string[];
+    suffix?: string;
+  };
+}
+
+export const getExternalUsers = async (
+  page = 1,
+  size = 1000,
+  sortCriteria: 'asc' | 'desc' = 'asc',
+  sortField = 'firstName',
+  search?: string,
+  filter?: Record<string, unknown>,
+) => {
+  const body: Record<string, unknown> = {
+    page,
+    size,
+    sortCriteria,
+    sortField,
+  };
+  if (filter) body.filter = filter;
+  if (search) body.text = search;
+
+  return fetchHt6Api<ExternalUser[], Record<string, unknown>>(
+    '/api/get/externaluser',
+    {
+      payload: body,
+      method: 'POST',
     },
   );
 };
