@@ -22,8 +22,31 @@ export default function ParticipantDetail() {
   const [participant, setParticipant] = useState<Participant | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentTime] = useState(new Date());
 
   const apiBaseURL = import.meta.env.VITE_API_HOST;
+
+  const getEventStatus = (start: string, end: string) => {
+    const startTime = new Date(start);
+    const endTime = new Date(end);
+    
+    if (currentTime < startTime) return 'upcoming';
+    if (currentTime >= startTime && currentTime <= endTime) return 'ongoing';
+    return 'ended';
+  };
+
+  const formatTime = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleString('en-US', {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  };
 
   const checkInFromNFC = async (nfcId: string, checkInEvent: string) => {
     const response = await fetch(`${apiBaseURL}/nfc/checkInFromNFC`, {
@@ -92,6 +115,8 @@ export default function ParticipantDetail() {
     } 
   }, [nfcId, participant]);
 
+
+
   if (loading) {
     return <PageLoader />;
   }
@@ -135,7 +160,9 @@ export default function ParticipantDetail() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Check-in Events</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {participant.user.checkIns && participant.user.checkIns.map((checkIn) => {
+            {participant.user.checkIns && participant.user.checkIns
+              .sort((a, b) => new Date(a.event.start).getTime() - new Date(b.event.start).getTime())
+              .map((checkIn) => {
 
               const hasCheckedIn = checkIn.checkIns.length > 0;
 
@@ -175,12 +202,16 @@ export default function ParticipantDetail() {
                   </button>
                 </div>
                 <div className="text-xs text-gray-500 flex gap-4">
-                  <span>Start: {new Date(checkIn.event.start).toLocaleString()}</span>
-                  <span>End: {new Date(checkIn.event.end).toLocaleString()}</span>
+                  <span className={`px-2 py-1 rounded ${getEventStatus(checkIn.event.start, checkIn.event.end) === 'ended' ? 'bg-red-100 text-red-700' : getEventStatus(checkIn.event.start, checkIn.event.end) === 'ongoing' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                    Start: {formatTime(checkIn.event.start)}
+                  </span>
+                  <span className={`px-2 py-1 rounded ${getEventStatus(checkIn.event.start, checkIn.event.end) === 'ended' ? 'bg-red-100 text-red-700' : getEventStatus(checkIn.event.start, checkIn.event.end) === 'ongoing' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                    End: {formatTime(checkIn.event.end)}
+                  </span>
                 </div>
                 {hasCheckedIn && (
                   <div className="text-xs text-gray-500 mt-2">
-                    Most Recent: {new Date(checkIn.checkIns[checkIn.checkIns.length - 1]).toLocaleString()}
+                    Most Recent: {formatTime(checkIn.checkIns[checkIn.checkIns.length - 1])}
                   </div>
                 )}
               </div>
