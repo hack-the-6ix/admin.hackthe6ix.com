@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import PageLoader from '../../components/page-loader';
-import { User } from '@/utils/ht6-api';
+import { User, loaderAuthCheck } from '@/utils/ht6-api';
+
+export async function clientLoader() {
+  return loaderAuthCheck()({} as any);
+}
 
 interface Participant {
   user: User & {
@@ -13,9 +17,8 @@ interface Participant {
       };
       checkIns: string[]; // ISO string
     }[];
-  }
+  };
 }
-
 
 export default function ParticipantDetail() {
   const { nfcId } = useParams();
@@ -29,7 +32,7 @@ export default function ParticipantDetail() {
   const getEventStatus = (start: string, end: string) => {
     const startTime = new Date(start);
     const endTime = new Date(end);
-    
+
     if (currentTime < startTime) return 'upcoming';
     if (currentTime >= startTime && currentTime <= endTime) return 'ongoing';
     return 'ended';
@@ -44,7 +47,7 @@ export default function ParticipantDetail() {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false
+      hour12: false,
     });
   };
 
@@ -59,11 +62,11 @@ export default function ParticipantDetail() {
         checkInEvent,
       }),
     });
-  
+
     if (!response.ok) {
       throw new Error('Failed to update check-in status');
     }
-  
+
     return response.json();
   };
 
@@ -78,11 +81,11 @@ export default function ParticipantDetail() {
         checkInEvent,
       }),
     });
-  
+
     if (!response.ok) {
       throw new Error('Failed to remove last check-in');
     }
-  
+
     return response.json();
   };
 
@@ -113,7 +116,11 @@ export default function ParticipantDetail() {
         console.log(data);
         setParticipant(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load participant data');
+        setError(
+          err instanceof Error ?
+            err.message
+          : 'Failed to load participant data',
+        );
       } finally {
         setLoading(false);
       }
@@ -131,10 +138,8 @@ export default function ParticipantDetail() {
       } else {
         window.location.href = 'https://hackthe6ix.com';
       }
-    } 
+    }
   }, [nfcId, participant]);
-
-
 
   if (loading) {
     return <PageLoader />;
@@ -154,7 +159,9 @@ export default function ParticipantDetail() {
     return (
       <div className="container flex items-center justify-center h-dvh mx-auto px-4">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-w-prose w-full">
-          <p className="text-yellow-700 text-center">No participant found with this NFC ID</p>
+          <p className="text-yellow-700 text-center">
+            No participant found with this NFC ID
+          </p>
         </div>
       </div>
     );
@@ -172,97 +179,165 @@ export default function ParticipantDetail() {
         <div className="text-sm text-gray-500 mb-6">
           ID: {participant.user._id}
           {participant.user.checkInTime && (
-            <div>Check-in Time: {new Date(participant.user.checkInTime).toLocaleString()}</div>
+            <div>
+              Check-in Time:{' '}
+              {new Date(participant.user.checkInTime).toLocaleString()}
+            </div>
           )}
         </div>
 
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Check-in Events</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {participant.user.checkIns && participant.user.checkIns
-              .sort((a, b) => new Date(a.event.start).getTime() - new Date(b.event.start).getTime())
-              .map((checkIn) => {
+            {participant.user.checkIns &&
+              participant.user.checkIns
+                .sort(
+                  (a, b) =>
+                    new Date(a.event.start).getTime() -
+                    new Date(b.event.start).getTime(),
+                )
+                .map((checkIn) => {
+                  const hasCheckedIn = checkIn.checkIns.length > 0;
 
-              const hasCheckedIn = checkIn.checkIns.length > 0;
+                  return (
+                    <div
+                      key={checkIn.event.name}
+                      className="p-3 border rounded"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="capitalize font-medium">
+                          {checkIn.event.name.replace(/([A-Z])/g, ' $1').trim()}
+                        </span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={async () => {
+                              try {
+                                // returns ISO string
+                                const newCheckIn: string = await checkInFromNFC(
+                                  nfcId!,
+                                  checkIn.event.name,
+                                );
+                                // Refresh the participant data to get the updated state from the server
+                                const updatedResponse = await fetch(
+                                  `${apiBaseURL}/nfc/getUser/${nfcId}`,
+                                  {
+                                    method: 'GET',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                  },
+                                );
 
-              return (
-              <div key={checkIn.event.name} className="p-3 border rounded">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="capitalize font-medium">{checkIn.event.name.replace(/([A-Z])/g, ' $1').trim()}</span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={async () => {
-                        try {
-                          // returns ISO string
-                          const newCheckIn: string = await checkInFromNFC(nfcId!, checkIn.event.name);
-                                                  // Refresh the participant data to get the updated state from the server
-                          const updatedResponse = await fetch(`${apiBaseURL}/nfc/getUser/${nfcId}`, {
-                            method: 'GET',
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                          });
-                        
-                        if (updatedResponse.ok) {
-                          const updatedData = await updatedResponse.json();
-                          setParticipant(updatedData);
-                        }
-                        } catch (err) {
-                          setError('Failed to update check-in status');
-                        }
-                      }}
-                      className={`px-4 py-2 rounded text-sm ${
-                        checkIn.checkIns.length > 0 
-                          ? 'bg-green-500 text-white hover:bg-green-600' 
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      } transition-colors`}
-                    >
-                      {hasCheckedIn ? `Checked In (${checkIn.checkIns.length})` : 'Not Checked In'}
-                    </button>
-                  </div>
-                </div>
-                <div className="text-xs text-gray-500 flex gap-4">
-                  <span className={`px-2 py-1 rounded ${getEventStatus(checkIn.event.start, checkIn.event.end) === 'ended' ? 'bg-red-100 text-red-700' : getEventStatus(checkIn.event.start, checkIn.event.end) === 'ongoing' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                    Start: {formatTime(checkIn.event.start)}
-                  </span>
-                  <span className={`px-2 py-1 rounded ${getEventStatus(checkIn.event.start, checkIn.event.end) === 'ended' ? 'bg-red-100 text-red-700' : getEventStatus(checkIn.event.start, checkIn.event.end) === 'ongoing' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                    End: {formatTime(checkIn.event.end)}
-                  </span>
-                </div>
-                {hasCheckedIn && (
-                  <div className="flex items-center gap-3 text-xs text-gray-500 mt-2">
-                    <span>
-                      Most Recent: {formatTime(checkIn.checkIns[checkIn.checkIns.length - 1])}
-                    </span>
-                    <button
-                      onClick={async () => {
-                        try {
-                          await removeLastCheckIn(nfcId!, checkIn.event.name);
-                          const updatedResponse = await fetch(`${apiBaseURL}/nfc/getUser/${nfcId}`, {
-                            method: 'GET',
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                          });
-                          if (updatedResponse.ok) {
-                            const updatedData = await updatedResponse.json();
-                            setParticipant(updatedData);
-                          }
-                        } catch (err) {
-                          setError('Failed to remove last check-in');
-                        }
-                      }}
-                      className="text-xs px-2 py-1 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
-                    >
-                      Undo Last
-                    </button>
-                  </div>
-                )}
-              </div>
-            )})}
+                                if (updatedResponse.ok) {
+                                  const updatedData =
+                                    await updatedResponse.json();
+                                  setParticipant(updatedData);
+                                }
+                              } catch (err) {
+                                setError('Failed to update check-in status');
+                              }
+                            }}
+                            className={`px-4 py-2 rounded text-sm ${
+                              checkIn.checkIns.length > 0 ?
+                                'bg-green-500 text-white hover:bg-green-600'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            } transition-colors`}
+                          >
+                            {hasCheckedIn ?
+                              `Checked In (${checkIn.checkIns.length})`
+                            : 'Not Checked In'}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500 flex gap-4">
+                        <span
+                          className={`px-2 py-1 rounded ${
+                            (
+                              getEventStatus(
+                                checkIn.event.start,
+                                checkIn.event.end,
+                              ) === 'ended'
+                            ) ?
+                              'bg-red-100 text-red-700'
+                            : (
+                              getEventStatus(
+                                checkIn.event.start,
+                                checkIn.event.end,
+                              ) === 'ongoing'
+                            ) ?
+                              'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-700'
+                          }`}
+                        >
+                          Start: {formatTime(checkIn.event.start)}
+                        </span>
+                        <span
+                          className={`px-2 py-1 rounded ${
+                            (
+                              getEventStatus(
+                                checkIn.event.start,
+                                checkIn.event.end,
+                              ) === 'ended'
+                            ) ?
+                              'bg-red-100 text-red-700'
+                            : (
+                              getEventStatus(
+                                checkIn.event.start,
+                                checkIn.event.end,
+                              ) === 'ongoing'
+                            ) ?
+                              'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-700'
+                          }`}
+                        >
+                          End: {formatTime(checkIn.event.end)}
+                        </span>
+                      </div>
+                      {hasCheckedIn && (
+                        <div className="flex items-center gap-3 text-xs text-gray-500 mt-2">
+                          <span>
+                            Most Recent:{' '}
+                            {formatTime(
+                              checkIn.checkIns[checkIn.checkIns.length - 1],
+                            )}
+                          </span>
+                          <button
+                            onClick={async () => {
+                              try {
+                                await removeLastCheckIn(
+                                  nfcId!,
+                                  checkIn.event.name,
+                                );
+                                const updatedResponse = await fetch(
+                                  `${apiBaseURL}/nfc/getUser/${nfcId}`,
+                                  {
+                                    method: 'GET',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                  },
+                                );
+                                if (updatedResponse.ok) {
+                                  const updatedData =
+                                    await updatedResponse.json();
+                                  setParticipant(updatedData);
+                                }
+                              } catch (err) {
+                                setError('Failed to remove last check-in');
+                              }
+                            }}
+                            className="text-xs px-2 py-1 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
+                          >
+                            Undo Last
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}

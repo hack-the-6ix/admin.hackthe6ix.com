@@ -15,6 +15,8 @@ export default [
     route('external-users', 'features/external-users/index.tsx'),
     route('volunteers', 'features/volunteers/index.tsx'),
     route('review', 'features/review/index.tsx'),
+    route('nfc/u/:nfcId', 'features/participant/ParticipantDetail.tsx'),
+    route('assign-nfc', 'features/assign-nfc/index.tsx'),
     index('features/home/index.tsx'),
   ]),
   ...prefix('auth', [
@@ -22,6 +24,4 @@ export default [
     route('callback', 'features/auth/Callback.tsx'),
     route('volunteer', 'features/auth/VolunteerLogin.tsx'),
   ]),
-  route('nfc/u/:nfcId', 'features/participant/ParticipantDetail.tsx'),
-  route('assign-nfc', 'features/assign-nfc/index.tsx'),
 ] satisfies RouteConfig;

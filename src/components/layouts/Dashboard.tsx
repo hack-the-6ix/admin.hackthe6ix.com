@@ -9,11 +9,12 @@ const organizerPages = [
   { label: 'Volunteers', to: '/volunteers' },
   { label: 'External Users', to: '/external-users' },
   { label: 'Admin Settings', to: '/admin-settings' },
+  { label: 'Assign NFC', to: '/assign-nfc' },
 ];
 
 const volunteerPages = [
   { label: 'Home', to: '/' },
-  { label: 'Applications', to: '/apps' },
+  { label: 'Assign NFC', to: '/assign-nfc' },
 ];
 
 export default function DashboardLayout() {

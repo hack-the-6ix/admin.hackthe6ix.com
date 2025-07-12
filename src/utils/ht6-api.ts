@@ -207,7 +207,7 @@ export function toLoaderResult<T>(result: Ht6ApiResponse<T>) {
 export function loaderAuthCheck(next: LoaderFunction = () => null) {
   return (args: LoaderFunctionArgs) => {
     if (!window.localStorage.getItem('HT6_token')) {
-      return redirect('/auth/login');
+      return redirect('/role-select');
     }
     return next(args);
   };
