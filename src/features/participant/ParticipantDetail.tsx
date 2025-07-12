@@ -1,25 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import PageLoader from '../../components/page-loader';
-
-interface CheckIns {
-  hackerCheckIn: boolean;
-  lunchOne: boolean;
-  dinnerOne: boolean;
-  eventOne: boolean;
-  snackOne: boolean;
-  lunchTwo: boolean;
-  dinnerTwo: boolean;
-}
+import { User } from '@/utils/ht6-api';
 
 interface Participant {
-  user: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    checkInTime?: number;
-    checkIns: CheckIns;
+  user: User & {
+    checkIns: {
+      event: {
+        name: string;
+        start: string; // "2025-07-18T21:00:00.000Z"
+        end: string;
+      };
+      checkIns: string[]; // ISO string
+    }[];
   }
 }
 
@@ -29,11 +22,34 @@ export default function ParticipantDetail() {
   const [participant, setParticipant] = useState<Participant | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentTime] = useState(new Date());
 
-  const apiBaseURL = "http://localhost:3000";
+  const apiBaseURL = import.meta.env.VITE_API_HOST;
 
-  const updateCheckInField = async (nfcId: string, checkInEvent: string, value: boolean) => {
-    const response = await fetch(`${apiBaseURL}/nfc/updateCheckInsFromNFC`, {
+  const getEventStatus = (start: string, end: string) => {
+    const startTime = new Date(start);
+    const endTime = new Date(end);
+    
+    if (currentTime < startTime) return 'upcoming';
+    if (currentTime >= startTime && currentTime <= endTime) return 'ongoing';
+    return 'ended';
+  };
+
+  const formatTime = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleString('en-US', {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  };
+
+  const checkInFromNFC = async (nfcId: string, checkInEvent: string) => {
+    const response = await fetch(`${apiBaseURL}/nfc/checkInFromNFC`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41,7 +57,6 @@ export default function ParticipantDetail() {
       body: JSON.stringify({
         nfcId,
         checkInEvent,
-        value,
       }),
     });
   
@@ -51,6 +66,34 @@ export default function ParticipantDetail() {
   
     return response.json();
   };
+
+  const removeLastCheckIn = async (nfcId: string, checkInEvent: string) => {
+    const response = await fetch(`${apiBaseURL}/nfc/removeLastCheckIn`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        nfcId,
+        checkInEvent,
+      }),
+    });
+  
+    if (!response.ok) {
+      throw new Error('Failed to remove last check-in');
+    }
+  
+    return response.json();
+  };
+
+  // checkIns?: {
+  //   event: {
+  //     name: string;
+  //     start: string; // "2025-07-18T21:00:00.000Z"
+  //     end: string;
+  //   };
+  //   checkIns: string[]; // ISO string
+  // }[];
 
   useEffect(() => {
     const fetchParticipant = async () => {
@@ -79,6 +122,20 @@ export default function ParticipantDetail() {
     void fetchParticipant();
   }, [nfcId]);
 
+  useEffect(() => {
+    // replace with actual check later
+    const isVolunteer = true;
+    if (!isVolunteer) {
+      if (participant?.user.hackerApplication?.linkedinLink) {
+        window.location.href = participant.user.hackerApplication.linkedinLink;
+      } else {
+        window.location.href = 'https://hackthe6ix.com';
+      }
+    } 
+  }, [nfcId, participant]);
+
+
+
   if (loading) {
     return <PageLoader />;
   }
@@ -104,8 +161,8 @@ export default function ParticipantDetail() {
   }
 
   return (
-    <div className="container flex items-center justify-center h-dvh mx-auto px-4">
-      <div className="bg-white shadow-sm border border-slate-200 rounded-lg p-6 max-w-prose w-full">
+    <div className="container mx-auto px-4 py-8 min-h-screen">
+      <div className="bg-transparent md:bg-white md:shadow-sm md:border md:border-slate-200 md:rounded-lg p-0 md:p-6 max-w-prose w-full mx-auto">
         <h1 className="text-2xl font-bold mb-4">
           {participant.user.firstName} {participant.user.lastName}
         </h1>
@@ -122,37 +179,87 @@ export default function ParticipantDetail() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Check-in Events</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {participant.user.checkIns && Object.entries(participant.user.checkIns).map(([event, checked]) => (
-              <div key={event} className="flex items-center justify-between p-3 border rounded">
-                <span className="capitalize">{event.replace(/([A-Z])/g, ' $1').trim()}</span>
-                <button
-                  onClick={async () => {
-                    try {
-                      await updateCheckInField(nfcId!, event, !checked);
-                      setParticipant(prev => prev ? {
-                        ...prev,
-                        user: {
-                          ...prev.user,
-                          checkIns: {
-                            ...prev.user.checkIns,
-                            [event]: !checked
-                          }
+            {participant.user.checkIns && participant.user.checkIns
+              .sort((a, b) => new Date(a.event.start).getTime() - new Date(b.event.start).getTime())
+              .map((checkIn) => {
+
+              const hasCheckedIn = checkIn.checkIns.length > 0;
+
+              return (
+              <div key={checkIn.event.name} className="p-3 border rounded">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="capitalize font-medium">{checkIn.event.name.replace(/([A-Z])/g, ' $1').trim()}</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={async () => {
+                        try {
+                          // returns ISO string
+                          const newCheckIn: string = await checkInFromNFC(nfcId!, checkIn.event.name);
+                                                  // Refresh the participant data to get the updated state from the server
+                          const updatedResponse = await fetch(`${apiBaseURL}/nfc/getUser/${nfcId}`, {
+                            method: 'GET',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                          });
+                        
+                        if (updatedResponse.ok) {
+                          const updatedData = await updatedResponse.json();
+                          setParticipant(updatedData);
                         }
-                      } : null);
-                    } catch (err) {
-                      setError('Failed to update check-in status');
-                    }
-                  }}
-                  className={`px-4 py-2 rounded ${
-                    checked 
-                      ? 'bg-green-500 text-white hover:bg-green-600' 
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  } transition-colors`}
-                >
-                  {checked ? 'Checked' : 'Not Checked'}
-                </button>
+                        } catch (err) {
+                          setError('Failed to update check-in status');
+                        }
+                      }}
+                      className={`px-4 py-2 rounded text-sm ${
+                        checkIn.checkIns.length > 0 
+                          ? 'bg-green-500 text-white hover:bg-green-600' 
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      } transition-colors`}
+                    >
+                      {hasCheckedIn ? `Checked In (${checkIn.checkIns.length})` : 'Not Checked In'}
+                    </button>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 flex gap-4">
+                  <span className={`px-2 py-1 rounded ${getEventStatus(checkIn.event.start, checkIn.event.end) === 'ended' ? 'bg-red-100 text-red-700' : getEventStatus(checkIn.event.start, checkIn.event.end) === 'ongoing' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                    Start: {formatTime(checkIn.event.start)}
+                  </span>
+                  <span className={`px-2 py-1 rounded ${getEventStatus(checkIn.event.start, checkIn.event.end) === 'ended' ? 'bg-red-100 text-red-700' : getEventStatus(checkIn.event.start, checkIn.event.end) === 'ongoing' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                    End: {formatTime(checkIn.event.end)}
+                  </span>
+                </div>
+                {hasCheckedIn && (
+                  <div className="flex items-center gap-3 text-xs text-gray-500 mt-2">
+                    <span>
+                      Most Recent: {formatTime(checkIn.checkIns[checkIn.checkIns.length - 1])}
+                    </span>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await removeLastCheckIn(nfcId!, checkIn.event.name);
+                          const updatedResponse = await fetch(`${apiBaseURL}/nfc/getUser/${nfcId}`, {
+                            method: 'GET',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                          });
+                          if (updatedResponse.ok) {
+                            const updatedData = await updatedResponse.json();
+                            setParticipant(updatedData);
+                          }
+                        } catch (err) {
+                          setError('Failed to remove last check-in');
+                        }
+                      }}
+                      className="text-xs px-2 py-1 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
+                    >
+                      Undo Last
+                    </button>
+                  </div>
+                )}
               </div>
-            ))}
+            )})}
           </div>
         </div>
       </div>

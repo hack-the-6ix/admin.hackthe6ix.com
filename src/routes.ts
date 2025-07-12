@@ -22,5 +22,6 @@ export default [
     route('callback', 'features/auth/Callback.tsx'),
     route('volunteer', 'features/auth/VolunteerLogin.tsx'),
   ]),
-  route('u/:nfcId', 'features/participant/ParticipantDetail.tsx'),
+  route('nfc/u/:nfcId', 'features/participant/ParticipantDetail.tsx'),
+  route('assign-nfc', 'features/assign-nfc/index.tsx'),
 ] satisfies RouteConfig;
