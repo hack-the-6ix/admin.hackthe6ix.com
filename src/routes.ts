@@ -17,6 +17,7 @@ export default [
     route('review', 'features/review/index.tsx'),
     route('nfc/u/:nfcId', 'features/participant/ParticipantDetail.tsx'),
     route('assign-nfc', 'features/assign-nfc/index.tsx'),
+    route('checkin', 'features/checkin/index.tsx'),
     index('features/home/index.tsx'),
   ]),
   ...prefix('auth', [

@@ -468,8 +468,16 @@ export const checkInUser = async (
   return fetchHt6Api<
     { status: number; message: false | string[] },
     { userID: string; userType: string }
-  >('/api/action/checkIN', {
+  >('/api/action/checkIn', {
     payload: { userID, userType },
     method: 'POST',
   });
+};
+
+export const getNfcIdForUser = async (userId: string) => {
+  const apiBaseURL = import.meta.env.VITE_API_HOST;
+  const response = await fetch(`${apiBaseURL}/nfc/getUserId/${userId}`);
+  if (!response.ok) throw new Error('Failed to fetch NFC ID');
+  const data = await response.json();
+  return data.userId as string | undefined;
 };

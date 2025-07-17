@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigation } from 'react-router';
+import { NavLink, Outlet, useNavigation, useNavigate } from 'react-router';
 import { useState, useEffect } from 'react';
 import logo from '../../assets/Logo.svg';
 import PageLoader from '../page-loader';
@@ -8,6 +8,7 @@ const organizerPages = [
   { label: 'Applications', to: '/apps' },
   { label: 'Volunteers', to: '/volunteers' },
   { label: 'External Users', to: '/external-users' },
+  { label: 'Check In', to: '/checkin' },
   { label: 'Admin Settings', to: '/admin-settings' },
   { label: 'Assign NFC', to: '/assign-nfc' },
 ];
@@ -19,6 +20,7 @@ const volunteerPages = [
 
 export default function DashboardLayout() {
   const navigation = useNavigation();
+  const navigate = useNavigate();
   const isPageChange =
     !!navigation.location &&
     navigation.location.pathname !== window.location.pathname;
@@ -45,6 +47,11 @@ export default function DashboardLayout() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/role-select');
+  };
+
   return (
     <div className="flex flex-col h-screen">
       <nav className="sticky top-0 flex justify-between items-center bg-slate-50 dark:bg-slate-950 text-neutral-light dark:text-white p-4 shadow-md w-full">
@@ -68,6 +75,12 @@ export default function DashboardLayout() {
               {label}
             </NavLink>
           ))}
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 mx-2 rounded-md text-sm font-medium bg-red-500 hover:bg-red-600 text-white transition"
+          >
+            Log Out
+          </button>
           <label className="mx-2 relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
@@ -152,6 +165,15 @@ export default function DashboardLayout() {
                 {label}
               </NavLink>
             ))}
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handleLogout();
+              }}
+              className="block w-full px-4 py-2 rounded-md text-sm font-medium bg-red-500 hover:bg-red-600 text-white transition mt-2"
+            >
+              Log Out
+            </button>
           </div>
         </div>
       )}

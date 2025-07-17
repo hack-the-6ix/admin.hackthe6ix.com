@@ -25,6 +25,7 @@ export async function clientLoader({ request }: Route.LoaderArgs) {
   // TODO: Add token refreshing
   // window.localStorage.setItem('HT6_refresh_token', result.message.refreshToken);
   window.localStorage.setItem('HT6_token', result.message.token);
+  window.localStorage.setItem('HT6_user_role', 'organizer');
   return redirect('/');
 }
 
