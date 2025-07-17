@@ -58,6 +58,7 @@ export default function QRCheckIn() {
 
     setScanResult(result);
 
+    // parsing result string
     let parsed;
     try {
       parsed = JSON.parse(result) as {
@@ -77,6 +78,7 @@ export default function QRCheckIn() {
     setUserType(parsed.userType);
     console.log('Scanned QR:', result);
 
+    // getting user info with userId from scanned results
     setShowAlert(true);
     setAlertMessage('Loading...');
     try {
@@ -103,33 +105,34 @@ export default function QRCheckIn() {
       {showAlert && <AlertPopup message={alertMessage} />}
       <h1 className="text-5xl font-bold text-primary">QR Check In</h1>
       <p className="text-xl font-bold text-slate-500">
-        Check in hackers quickly using their QR code
+        Check in hackers using their QR code
       </p>
 
       <div className="grid md:grid-cols-3 mt-8 gap-6">
+        {/* scanner */}
         <div className="relative bg-primary-extralight border border-primary dark:bg-slate-700 rounded-2xl shadow-xl p-6 w-full flex items-center justify-center">
           {cameraOn ?
-            <Scanner
-              onScan={handleScan}
-              onError={(err) => {
-                console.error('QR scan error', err);
-                alert('Error accessing camera or scanning QR code.');
-              }}
-              styles={{
-                container: {
-                  width: '100%',
-                  height: '300px',
-                  borderRadius: '0.75rem',
-                  overflow: 'hidden',
-                },
-                video: {
-                  objectFit: 'cover',
-                  width: '100%',
-                  height: '100%',
-                },
-              }}
-            />
-          : <div className="w-full h-[300px] flex items-center justify-center text-slate-400">
+            <div className="w-full h-[250px] md:h-[300px] rounded-xl overflow-hidden">
+              <Scanner
+                onScan={handleScan}
+                onError={(err) => {
+                  console.error('QR scan error', err);
+                  alert('Error accessing camera or scanning QR code.');
+                }}
+                styles={{
+                  container: {
+                    width: '100%',
+                    height: '100%',
+                  },
+                  video: {
+                    objectFit: 'cover',
+                    width: '100%',
+                    height: '100%',
+                  },
+                }}
+              />
+            </div>
+          : <div className="w-full h-[250px] md:h-[300px] flex items-center justify-center text-slate-500">
               Camera is off
             </div>
           }
@@ -144,7 +147,9 @@ export default function QRCheckIn() {
             {cameraOn ? 'Turn off Camera' : 'Turn on Camera'}
           </Button>
         </div>
+        {/* Scanned User Info */}
         <UserInfoBox candidate={candidate} userType={userType}></UserInfoBox>
+        {/* Log of Past Scanned Users */}
         <div className="p-5 bg-primary-extralight border border-primary shadow-xl dark:bg-slate-700 rounded-2xl flex flex-col gap-4">
           <h2 className="text-gray-700 dark:text-slate-200 font-medium text-lg">
             Scanned Log
@@ -153,8 +158,13 @@ export default function QRCheckIn() {
             {scannedLog.length === 0 ?
               <li className="italic text-slate-400">No scans yet</li>
             : scannedLog.map((user) => (
-                <li key={user._id} className="py-1">
-                  <strong>{user.fullName}</strong> — {user.email}
+                <li
+                  key={user._id}
+                  className="py-1 flex flex-row justify-between"
+                >
+                  <div>
+                    <strong>{user.fullName}</strong> — {user.email}
+                  </div>
                   <button
                     className="bg-transparent hover:bg-transparent"
                     onClick={() => {
