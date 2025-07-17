@@ -60,7 +60,10 @@ export default function QRCheckIn() {
 
     let parsed;
     try {
-      parsed = JSON.parse(result);
+      parsed = JSON.parse(result) as {
+        userID: string;
+        userType: 'User' | 'ExternalUser';
+      };
     } catch {
       console.error('Invalid QR code content:', result);
       setShowAlert(true);
