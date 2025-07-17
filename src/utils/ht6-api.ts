@@ -460,3 +460,16 @@ export const getExternalUsers = async (
     },
   );
 };
+
+export const checkInUser = async (
+  userID: string,
+  userType: 'User' | 'ExternalUser',
+) => {
+  return fetchHt6Api<
+    { status: number; message: false | string[] },
+    { userID: string; userType: string }
+  >('/api/action/checkIN', {
+    payload: { userID, userType },
+    method: 'POST',
+  });
+};
