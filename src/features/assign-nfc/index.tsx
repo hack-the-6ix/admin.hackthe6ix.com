@@ -31,13 +31,11 @@ const generateNfcId = async (user: User) => {
   let idx = 1;
   let nfcId;
 
-  // loop until we find existing id or new id to assign to
   while (true) {
     if (idx > lastName.length + id.length) {
       throw new Error('Error assigning unique nfc id');
     }
 
-    // entire name as nfc id is taken
     if (idx > lastName.length) {
       nfcId = `${firstName}-${lastName}-${id.slice(0, idx - lastName.length)}`;
     } else {
@@ -48,11 +46,9 @@ const generateNfcId = async (user: User) => {
       `${apiBaseURL}/nfc/getUserId/${nfcId.toLowerCase()}`,
     );
 
-    // existing row and response / user id is not null
     if (existingIdResponse.status == 200 && existingIdResponse.data.userId) {
       const existingId = existingIdResponse.data.userId;
 
-      // if assignment already exists in db and it matches user id
       if (existingId == id) {
         return nfcId.toLowerCase();
       } else {
@@ -62,7 +58,6 @@ const generateNfcId = async (user: User) => {
         continue;
       }
     } else {
-      // user not found
       break;
     }
   }
@@ -119,7 +114,6 @@ export default function AssignNfc() {
     }
   };
 
-  // debounce
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       handleSearch(searchTerm);
@@ -129,11 +123,11 @@ export default function AssignNfc() {
   }, [searchTerm]);
 
   return (
-    <div className="p-8 grid grid-cols-2 gap-4">
+    <div className="p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
       <div className="flex flex-col gap-4">
         <div className="mb-4">
           <input
-            className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
             placeholder="Search for hackers by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -146,17 +140,19 @@ export default function AssignNfc() {
             users.map((user: User) => (
               <div
                 key={user._id}
-                className="py-2 border-b border-gray-200 flex justify-between"
+                className="py-3 border-b border-gray-200 flex flex-col sm:flex-row sm:justify-between gap-2"
               >
-                <div className="flex flex-col gap-2">
-                  <p>
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm sm:text-base">
                     {user.fullName} - {user._id}
                   </p>
-                  <p>{user.email}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    {user.email}
+                  </p>
                 </div>
 
                 <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                  className="bg-blue-500 text-white px-3 py-2 rounded-md text-sm sm:text-base w-full sm:w-auto"
                   onClick={async () => {
                     if (selectedUser?._id == user._id) {
                       return;
@@ -185,24 +181,28 @@ export default function AssignNfc() {
         </h3>
         {selectedUser && nfcId ?
           <>
-            <div className="space-y-2">
-              <div>
+            <div className="space-y-3">
+              <div className="text-sm sm:text-base">
                 <strong>Name:</strong> {selectedUser.fullName}
               </div>
-              <div>
+              <div className="text-sm sm:text-base">
                 <strong>Email:</strong> {selectedUser.email}
               </div>
-              <div>
+              <div className="text-sm sm:text-base">
                 <strong>User ID:</strong> {selectedUser._id}
               </div>
               <div className="mt-4 p-3 bg-white border border-blue-300 rounded">
-                <strong>Generated NFC ID URL:</strong>
-                <span className="ml-2 font-mono text-blue-700 bg-blue-100 px-2 py-1 rounded">
-                  {dashboardURL}/nfc/u/{nfcId}
-                </span>
+                <strong className="text-sm sm:text-base">
+                  Generated NFC ID URL:
+                </strong>
+                <div className="mt-2 break-all">
+                  <span className="font-mono text-blue-700 bg-blue-100 px-2 py-1 rounded text-xs sm:text-sm">
+                    {dashboardURL}/nfc/u/{nfcId}
+                  </span>
+                </div>
               </div>
               <button
-                className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md w-full sm:w-auto text-sm sm:text-base"
                 onClick={() => {
                   navigator.clipboard.writeText(
                     `${dashboardURL}/nfc/u/${nfcId}`,
@@ -214,7 +214,9 @@ export default function AssignNfc() {
             </div>
           </>
         : <>
-            <p>Select a user to generate their NFC ID URL here.</p>
+            <p className="text-sm sm:text-base">
+              Select a user to generate their NFC ID URL here.
+            </p>
           </>
         }
       </div>
