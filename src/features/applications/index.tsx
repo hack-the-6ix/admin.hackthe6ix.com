@@ -198,7 +198,7 @@ export default function Applications() {
                     key={user._id}
                     className="bg-gray-100 hover:bg-gray-200 dark:bg-slate-500 dark:hover:bg-slate-700"
                     onClick={() => {
-                      void navigate(`/user/${user._id}`);
+                      window.open(`/user/${user._id}`);
                     }}
                   >
                     {[...columns.entries()].map(([key, value]) => (

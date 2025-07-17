@@ -15,7 +15,6 @@ export default function CurrentStatus({ candidate }: { candidate: User }) {
     'Response: -',
     'Checked In',
   ];
-  console.log(candidate);
 
   const colourIndex = [1, 0, 0, 0, 0, 0];
   if (candidate.status.applied) {

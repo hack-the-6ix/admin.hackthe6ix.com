@@ -8,12 +8,14 @@ const organizerPages = [
   { label: 'Applications', to: '/apps' },
   { label: 'Volunteers', to: '/volunteers' },
   { label: 'External Users', to: '/external-users' },
-  { label: 'Admin Settings', to: '/admin-settings' },
+  { label: 'QR Check In', to: '/qr-checkIn' },
   { label: 'Assign NFC', to: '/assign-nfc' },
+  { label: 'Admin Settings', to: '/admin-settings' },
 ];
 
 const volunteerPages = [
   { label: 'Home', to: '/' },
+  { label: 'QR Check In', to: '/qr-checkIn' },
   { label: 'Assign NFC', to: '/assign-nfc' },
 ];
 

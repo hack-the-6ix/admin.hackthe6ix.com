@@ -12,6 +12,7 @@ import CurrentStatus from './currentStatus';
 import Button from '@/components/button';
 import SideBarInfo from './sideBarInfo';
 import { categoryNames, categoryQuestions } from '@/utils/const';
+import QR from './QR';
 
 export async function clientLoader({ params }: { params: { id: string } }) {
   const applicantsData = await getUser(1, 2, 'asc', '', '', { _id: params.id });
@@ -34,6 +35,7 @@ export default function UserDetails() {
   const resumeLink = userData.resumeLink;
   const id = useParams().id;
   //const navigation = useNavigate();
+  const [showQr, setShowQr] = useState(false);
 
   // syncing up candidate info every 10 seconds
   const fetchCandidate = async () => {
@@ -106,16 +108,27 @@ export default function UserDetails() {
 
   return (
     <div className="p-4 m-3">
+      {showQr && (
+        <QR
+          onClose={() => {
+            setShowQr(false);
+          }}
+          base64Img={candidate.checkInQR ?? ''}
+        />
+      )}
       <div className="mb-6 flex align-center justify-between md:flex-row flex-col">
         <h1 className="text-5xl font-bold text-primary">
           {candidate.fullName}
         </h1>
         <div className="ml-4 flex gap-3 sm:gap-4 items-end py-1">
-          <h2 className="text-3xl font-bold text-gray-500 dark:text-white">
-            Check In |
-          </h2>
-          <Button className="py-1">QR</Button>
-          <Button className="py-1">NFC</Button>
+          <Button
+            className="py-1"
+            onClick={() => {
+              setShowQr(true);
+            }}
+          >
+            View QR code
+          </Button>
         </div>
       </div>
       <div className="grid md:grid-cols-[5fr_2fr] gap-6">
