@@ -5,6 +5,7 @@ import PageLoader from '../page-loader';
 
 const organizerPages = [
   { label: 'Home', to: '/' },
+  { label: 'Hackers', to: '/hackers' },
   { label: 'Applications', to: '/apps' },
   { label: 'Volunteers', to: '/volunteers' },
   { label: 'External Users', to: '/external-users' },
@@ -16,6 +17,8 @@ const organizerPages = [
 const volunteerPages = [
   { label: 'Home', to: '/' },
   { label: 'Assign NFC', to: '/assign-nfc' },
+  { label: 'Check In', to: '/checkin' },
+  { label: 'Hackers', to: '/hackers' },
 ];
 
 export default function DashboardLayout() {

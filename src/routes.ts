@@ -18,6 +18,7 @@ export default [
     route('nfc/u/:nfcId', 'features/participant/ParticipantDetail.tsx'),
     route('assign-nfc', 'features/assign-nfc/index.tsx'),
     route('checkin', 'features/checkin/index.tsx'),
+    route('hackers', 'features/hackers/index.tsx'),
     index('features/home/index.tsx'),
   ]),
   ...prefix('auth', [
